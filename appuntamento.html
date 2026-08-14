@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Nuovo intervento — Idro Operative</title>
+<meta name="theme-color" content="#0E161D" />
+<link rel="manifest" href="manifest.json" />
+<link rel="icon" href="icons/icon-192.png" />
+<link rel="apple-touch-icon" href="icons/icon-192.png" />
+<link rel="stylesheet" href="css/style.css" />
+</head>
+<body data-page="nuovo">
+
+<div class="mobile-topbar">
+  <div class="brand">
+    <div class="brand-mark" style="width:28px;height:28px;">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#1A1006" stroke-width="2.4" width="16" height="16"><path d="M14 4 9 9l6 6 5-5a4 4 0 0 0-6-6Z"/><path d="M9 15l-4.5 4.5"/><path d="M6 12l-2 2 4 4 2-2"/></svg>
+    </div>
+    <div class="brand-text" style="font-size:14px;">IDRO<span>OPERATIVE</span></div>
+  </div>
+  <nav class="mobile-topbar-links">
+    <a href="dashboard.html" data-nav="dashboard"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg></a>
+    <a href="appuntamento.html" data-nav="nuovo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg></a>
+    <a href="percorso.html" data-nav="percorso"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 20l-5-2V4l5 2 6-2 5 2v14l-5-2-6 2Z"/><path d="M9 6v14M15 4v14"/></svg></a>
+  </nav>
+</div>
+
+<div class="app-shell">
+  <aside class="sidenav">
+    <div class="brand">
+      <div class="brand-mark">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#1A1006" stroke-width="2.2"><path d="M14 4 9 9l6 6 5-5a4 4 0 0 0-6-6Z"/><path d="M9 15l-4.5 4.5"/><path d="M6 12l-2 2 4 4 2-2"/></svg>
+      </div>
+      <div class="brand-text">IDRO<span>OPERATIVE</span></div>
+    </div>
+    <div class="nav-group">
+      <div class="nav-label">Operativo</div>
+      <a class="nav-link" href="dashboard.html" data-nav="dashboard">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg>
+        Dashboard
+      </a>
+      <a class="nav-link" href="appuntamento.html" data-nav="nuovo">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+        Nuovo intervento
+      </a>
+      <a class="nav-link" href="percorso.html" data-nav="percorso">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 20l-5-2V4l5 2 6-2 5 2v14l-5-2-6 2Z"/><path d="M9 6v14M15 4v14"/></svg>
+        Ottimizza itinerario
+      </a>
+    </div>
+    <div class="nav-footer">
+      <div class="user-card">
+        <div class="avatar" data-user-avatar>--</div>
+        <div class="who">
+          <div class="name" data-user-name>Caricamento…</div>
+          <div class="role" data-user-role></div>
+        </div>
+      </div>
+      <a href="#" class="nav-link logout-link" id="logout-btn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg>
+        Esci
+      </a>
+    </div>
+  </aside>
+
+  <main class="main">
+    <div class="topbar">
+      <div>
+        <span class="eyebrow">SCHEDA INTERVENTO</span>
+        <h1 id="form-title">Nuovo intervento</h1>
+        <p id="form-sub">Registra un nuovo appuntamento per la squadra.</p>
+      </div>
+      <div class="topbar-actions">
+        <a href="dashboard.html" class="btn btn-ghost">Annulla</a>
+      </div>
+    </div>
+
+    <form id="appt-form">
+      <div class="form-grid">
+        <!-- Colonna sinistra: dati intervento -->
+        <div>
+          <div class="card">
+            <div class="card-header"><h2>Dati cliente</h2></div>
+            <div class="field-row">
+              <div class="field">
+                <label for="client_name">Nome cliente *</label>
+                <input type="text" id="client_name" required placeholder="Es. Fam. Bianchi" />
+              </div>
+              <div class="field">
+                <label for="client_phone">Telefono</label>
+                <input type="tel" id="client_phone" placeholder="Es. 333 1234567" />
+              </div>
+            </div>
+            <div class="field">
+              <label for="address">Indirizzo completo *</label>
+              <input type="text" id="address" required placeholder="Via, numero civico, città, CAP" />
+              <div class="hint">Usato per l'awareness della giornata e per il calcolo dell'itinerario.</div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header"><h2>Pianificazione</h2></div>
+            <div class="field-row">
+              <div class="field">
+                <label for="appointment_date">Data *</label>
+                <input type="date" id="appointment_date" required />
+              </div>
+              <div class="field">
+                <label for="start_time">Ora inizio *</label>
+                <input type="time" id="start_time" required />
+              </div>
+            </div>
+            <div class="field-row">
+              <div class="field">
+                <label for="duration_minutes">Durata prevista (minuti) *</label>
+                <input type="number" id="duration_minutes" min="15" step="15" value="60" required />
+              </div>
+              <div class="field" id="status-field">
+                <label for="status">Stato</label>
+                <select id="status">
+                  <option value="pianificato">Pianificato</option>
+                  <option value="in_corso">In corso</option>
+                  <option value="completato">Completato</option>
+                  <option value="annullato">Annullato</option>
+                </select>
+              </div>
+            </div>
+            <div class="field">
+              <label>Personale richiesto *</label>
+              <div class="stepper">
+                <button type="button" id="staff-minus">−</button>
+                <span id="staff_count">1</span>
+                <button type="button" id="staff-plus">+</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header"><h2>Promemoria attrezzatura</h2></div>
+            <p>Aggiungi gli strumenti o i materiali speciali necessari per questo intervento.</p>
+            <div class="checklist" id="checklist"></div>
+            <button type="button" class="btn btn-secondary btn-sm" id="add-checklist-item" style="margin-top:10px;">+ Aggiungi voce</button>
+            <div class="hint">Suggerimenti rapidi:</div>
+            <div class="chip-row" id="chip-suggestions"></div>
+          </div>
+
+          <div class="card">
+            <div class="card-header"><h2>Note</h2></div>
+            <div class="field" style="margin-bottom:0;">
+              <textarea id="notes" placeholder="Dettagli aggiuntivi per la squadra…"></textarea>
+            </div>
+          </div>
+
+          <button type="submit" class="btn btn-primary btn-block" id="submit-btn" style="margin-top:4px;">Crea intervento</button>
+          <button type="button" class="btn btn-danger btn-block" id="delete-btn" style="display:none; margin-top:10px;">Elimina intervento</button>
+        </div>
+
+        <!-- Colonna destra: awareness della giornata -->
+        <div>
+          <div class="card" style="position:sticky; top:20px;">
+            <div class="card-header day-panel-header">
+              <h3>Impegni della giornata</h3>
+              <span class="count" id="day-panel-count">–</span>
+            </div>
+            <p>Altri interventi già fissati per la data selezionata, per evitare accavallamenti.</p>
+            <div class="conflict-banner" id="conflict-banner" style="display:none;">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 9v4M12 17h.01M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/></svg>
+              <span></span>
+            </div>
+            <div id="day-panel-body"></div>
+          </div>
+        </div>
+      </div>
+    </form>
+  </main>
+</div>
+
+<div id="toast-root"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/supabase-client.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/appuntamenti.js"></script>
+<script src="js/appuntamento-form.js"></script>
+<script>
+  document.getElementById("logout-btn").addEventListener("click", (e) => { e.preventDefault(); logout(); });
+</script>
+</body>
+</html>

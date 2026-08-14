@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Dettaglio intervento — Idro Operative</title>
+<meta name="theme-color" content="#0E161D" />
+<link rel="manifest" href="manifest.json" />
+<link rel="icon" href="icons/icon-192.png" />
+<link rel="apple-touch-icon" href="icons/icon-192.png" />
+<link rel="stylesheet" href="css/style.css" />
+</head>
+<body data-page="dettaglio">
+
+<div class="mobile-topbar">
+  <div class="brand">
+    <div class="brand-mark" style="width:28px;height:28px;">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#1A1006" stroke-width="2.4" width="16" height="16"><path d="M14 4 9 9l6 6 5-5a4 4 0 0 0-6-6Z"/><path d="M9 15l-4.5 4.5"/><path d="M6 12l-2 2 4 4 2-2"/></svg>
+    </div>
+    <div class="brand-text" style="font-size:14px;">IDRO<span>OPERATIVE</span></div>
+  </div>
+  <nav class="mobile-topbar-links">
+    <a href="dashboard.html" data-nav="dashboard"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg></a>
+    <a href="appuntamento.html" data-nav="nuovo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg></a>
+    <a href="percorso.html" data-nav="percorso"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 20l-5-2V4l5 2 6-2 5 2v14l-5-2-6 2Z"/><path d="M9 6v14M15 4v14"/></svg></a>
+  </nav>
+</div>
+
+<div class="app-shell">
+  <aside class="sidenav">
+    <div class="brand">
+      <div class="brand-mark">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#1A1006" stroke-width="2.2"><path d="M14 4 9 9l6 6 5-5a4 4 0 0 0-6-6Z"/><path d="M9 15l-4.5 4.5"/><path d="M6 12l-2 2 4 4 2-2"/></svg>
+      </div>
+      <div class="brand-text">IDRO<span>OPERATIVE</span></div>
+    </div>
+    <div class="nav-group">
+      <div class="nav-label">Operativo</div>
+      <a class="nav-link" href="dashboard.html" data-nav="dashboard">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg>
+        Dashboard
+      </a>
+      <a class="nav-link" href="appuntamento.html" data-nav="nuovo">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+        Nuovo intervento
+      </a>
+      <a class="nav-link" href="percorso.html" data-nav="percorso">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 20l-5-2V4l5 2 6-2 5 2v14l-5-2-6 2Z"/><path d="M9 6v14M15 4v14"/></svg>
+        Ottimizza itinerario
+      </a>
+    </div>
+    <div class="nav-footer">
+      <div class="user-card">
+        <div class="avatar" data-user-avatar>--</div>
+        <div class="who">
+          <div class="name" data-user-name>Caricamento…</div>
+          <div class="role" data-user-role></div>
+        </div>
+      </div>
+      <a href="#" class="nav-link logout-link" id="logout-btn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg>
+        Esci
+      </a>
+    </div>
+  </aside>
+
+  <main class="main">
+    <div class="topbar">
+      <div>
+        <span class="eyebrow" id="topbar-eyebrow">INTERVENTO</span>
+        <h1>Dettaglio</h1>
+      </div>
+      <div class="topbar-actions">
+        <a href="percorso.html" class="btn btn-secondary" id="route-link">Vedi itinerario del giorno</a>
+        <a href="appuntamento.html" class="btn btn-primary" id="edit-link">Modifica</a>
+      </div>
+    </div>
+
+    <div id="detail-root">
+      <div class="page-loader"><span class="spinner"></span> Caricamento…</div>
+    </div>
+  </main>
+</div>
+
+<div id="toast-root"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/supabase-client.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/appuntamenti.js"></script>
+<script src="js/dettaglio.js"></script>
+<script>
+  document.getElementById("logout-btn").addEventListener("click", (e) => { e.preventDefault(); logout(); });
+</script>
+</body>
+</html>

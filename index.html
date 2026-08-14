@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Idro Operative — Accedi</title>
+<meta name="description" content="Gestionale appuntamenti per interventi di riparazione idraulica." />
+<meta name="theme-color" content="#0E161D" />
+<link rel="manifest" href="manifest.json" />
+<link rel="icon" href="icons/icon-192.png" />
+<link rel="apple-touch-icon" href="icons/icon-192.png" />
+<link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+<div class="auth-screen">
+  <aside class="auth-side">
+    <svg class="schematic" viewBox="0 0 500 700" preserveAspectRatio="xMidYMid slice">
+      <g fill="none" stroke="#C97C48" stroke-width="1.4" opacity="0.35">
+        <path d="M-20 120 H180 V260 H420 V420" />
+        <path d="M-20 380 H120 V520 H500" />
+        <path d="M60 700 V560 H300 V640 H500" />
+      </g>
+      <g fill="#C97C48" opacity="0.5">
+        <circle cx="180" cy="120" r="4" /><circle cx="180" cy="260" r="4" /><circle cx="420" cy="260" r="4" />
+        <circle cx="120" cy="380" r="4" /><circle cx="120" cy="520" r="4" />
+        <circle cx="300" cy="640" r="4" /><circle cx="60" cy="560" r="4" />
+      </g>
+    </svg>
+
+    <div class="auth-side-content">
+      <div class="brand">
+        <div class="brand-mark">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#1A1006" stroke-width="2.2"><path d="M14 4 9 9l6 6 5-5a4 4 0 0 0-6-6Z"/><path d="M9 15l-4.5 4.5"/><path d="M6 12l-2 2 4 4 2-2"/></svg>
+        </div>
+        <div class="brand-text">IDRO<span>OPERATIVE</span></div>
+      </div>
+      <h2>Ogni intervento, ogni squadra, un solo percorso ottimale.</h2>
+      <p class="lead">Pianifica gli appuntamenti, evita le sovrapposizioni e lascia che il motore di instradamento calcoli il giro più corto della giornata.</p>
+    </div>
+
+    <div class="auth-quote">"Il tubo giusto, nel posto giusto, all'ora giusta." — squadra operativa</div>
+  </aside>
+
+  <div class="auth-form-wrap">
+    <div class="auth-form">
+      <h1 id="auth-title">Bentornato</h1>
+      <p class="sub" id="auth-sub">Accedi per gestire gli interventi di oggi.</p>
+
+      <div class="auth-error" id="auth-error"></div>
+
+      <form id="auth-form" novalidate>
+        <div class="field" id="field-fullname" style="display:none;">
+          <label for="fullname">Nome e cognome</label>
+          <input type="text" id="fullname" autocomplete="name" placeholder="Mario Rossi" />
+        </div>
+        <div class="field">
+          <label for="email">Email</label>
+          <input type="email" id="email" autocomplete="email" required placeholder="mario.rossi@azienda.it" />
+        </div>
+        <div class="field">
+          <label for="password">Password</label>
+          <input type="password" id="password" autocomplete="current-password" required minlength="6" placeholder="••••••••" />
+        </div>
+        <button type="submit" class="btn btn-primary btn-block" id="auth-submit">Accedi</button>
+      </form>
+
+      <div class="auth-toggle">
+        <span id="auth-toggle-label">Non hai un account?</span>
+        <button type="button" id="auth-toggle-btn">Registrati</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="toast-root"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/supabase-client.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/auth.js"></script>
+</body>
+</html>
