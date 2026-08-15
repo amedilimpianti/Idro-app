@@ -104,11 +104,15 @@ function setActiveNav() {
   });
 }
 
-// Registrazione del Service Worker (installabilità PWA + cache app shell).
+// Il Service Worker è stato rimosso (causava problemi di cache durante lo
+// sviluppo attivo). Questo blocco disinstalla automaticamente qualsiasi
+// versione vecchia già registrata sui dispositivi degli utenti, così non è
+// necessario cancellare manualmente i dati del sito.
 if ("serviceWorker" in navigator) {
-  window.addEventListener("load", () => {
-    navigator.serviceWorker.register("/sw.js").catch((err) => {
-      console.warn("Registrazione Service Worker non riuscita:", err);
-    });
+  navigator.serviceWorker.getRegistrations().then((registrations) => {
+    registrations.forEach((reg) => reg.unregister());
   });
+  if (window.caches) {
+    caches.keys().then((keys) => keys.forEach((k) => caches.delete(k)));
+  }
 }
