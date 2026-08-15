@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Impostazioni — IDROPERATIVE</title>
+<meta name="theme-color" content="#F4F6F5" />
+<link rel="manifest" href="manifest.json" />
+<link rel="icon" href="icons/icon-192.png" />
+<link rel="apple-touch-icon" href="icons/icon-192.png" />
+<link rel="stylesheet" href="css/style.css" />
+</head>
+<body data-page="impostazioni">
+
+<div class="mobile-topbar">
+  <div class="brand">
+    <div class="brand-mark" style="width:28px;height:28px;"><img src="icons/icon-192.png" alt="IDROPERATIVE" /></div>
+    <div class="brand-text" style="font-size:14px;">IDRO<span>PERATIVE</span></div>
+  </div>
+  <nav class="mobile-topbar-links">
+    <a href="dashboard.html" data-nav="dashboard"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg></a>
+    <a href="appuntamento.html" data-nav="nuovo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg></a>
+    <a href="impostazioni.html" data-nav="impostazioni"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1Z"/></svg></a>
+  </nav>
+</div>
+
+<div class="app-shell">
+  <aside class="sidenav">
+    <div class="brand">
+      <div class="brand-mark"><img src="icons/icon-192.png" alt="IDROPERATIVE" /></div>
+      <div class="brand-text">IDRO<span>PERATIVE</span></div>
+    </div>
+    <div class="nav-group">
+      <div class="nav-label">Operativo</div>
+      <a class="nav-link" href="dashboard.html" data-nav="dashboard">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg>
+        Dashboard
+      </a>
+      <a class="nav-link" href="appuntamento.html" data-nav="nuovo">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+        Nuovo intervento
+      </a>
+      <a class="nav-link" href="impostazioni.html" data-nav="impostazioni">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1Z"/></svg>
+        Impostazioni
+      </a>
+    </div>
+    <div class="nav-footer">
+      <div class="user-card">
+        <div class="avatar" data-user-avatar>--</div>
+        <div class="who">
+          <div class="name" data-user-name>Caricamento…</div>
+          <div class="role" data-user-role></div>
+        </div>
+      </div>
+      <a href="#" class="nav-link logout-link" id="logout-btn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg>
+        Esci
+      </a>
+    </div>
+  </aside>
+
+  <main class="main">
+    <div class="topbar">
+      <div>
+        <span class="eyebrow">GESTIONE DATI</span>
+        <h1>Impostazioni</h1>
+        <p>Gestisci in blocco gli appuntamenti registrati nell'app.</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header"><h2>Eliminazione rapida</h2></div>
+
+      <div class="settings-row">
+        <div class="info">
+          <h4>Elimina tutti gli appuntamenti futuri</h4>
+          <p>Rimuove ogni intervento con data odierna o successiva.</p>
+        </div>
+        <button type="button" class="btn btn-danger" id="delete-future-btn">Elimina futuri</button>
+      </div>
+
+      <div class="settings-row">
+        <div class="info">
+          <h4>Elimina tutti gli appuntamenti passati</h4>
+          <p>Rimuove ogni intervento con data precedente a oggi.</p>
+        </div>
+        <button type="button" class="btn btn-danger" id="delete-past-btn">Elimina passati</button>
+      </div>
+
+      <div class="settings-row">
+        <div class="info">
+          <h4>Elimina assolutamente tutto</h4>
+          <p>Cancella l'intero storico appuntamenti dell'azienda.</p>
+        </div>
+        <button type="button" class="btn btn-danger" id="delete-all-btn">Elimina tutto</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header"><h2>Eliminazione singola</h2></div>
+      <p>Seleziona manualmente uno o più appuntamenti specifici da eliminare.</p>
+      <button type="button" class="btn btn-secondary" id="show-list-btn">Seleziona singolarmente</button>
+
+      <div id="bulk-list-container" style="display:none; margin-top:14px;"></div>
+
+      <button type="button" class="btn btn-danger btn-block" id="delete-selected-btn" style="margin-top:14px;">Elimina selezionati</button>
+    </div>
+  </main>
+</div>
+
+<div id="toast-root"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/supabase-client.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/appuntamenti.js"></script>
+<script src="js/impostazioni.js"></script>
+<script>
+  document.getElementById("logout-btn").addEventListener("click", (e) => { e.preventDefault(); logout(); });
+</script>
+</body>
+</html>
