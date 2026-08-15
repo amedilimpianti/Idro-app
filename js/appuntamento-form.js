@@ -3,17 +3,6 @@
 // (appuntamento.html). Gestisce anche il pannello "awareness della giornata".
 // ==========================================================================
 
-const DEFAULT_EQUIPMENT_SUGGESTIONS = [
-  "Autoclave portatile",
-  "Saldatrice per rame",
-  "Set chiavi inglesi",
-  "Videoispezione tubi",
-  "Sturatubi elettrico",
-  "Flessibile alta pressione",
-  "Kit guarnizioni",
-  "Rilevatore perdite",
-];
-
 document.addEventListener("DOMContentLoaded", async () => {
   const session = await requireSession();
   if (!session) return;
@@ -36,8 +25,6 @@ document.addEventListener("DOMContentLoaded", async () => {
   const timeInput = document.getElementById("start_time");
   const durationInput = document.getElementById("duration_minutes");
   const staffCountEl = document.getElementById("staff_count");
-  const checklistEl = document.getElementById("checklist");
-  const chipRow = document.getElementById("chip-suggestions");
   const dayPanelBody = document.getElementById("day-panel-body");
   const dayPanelCount = document.getElementById("day-panel-count");
   const conflictBanner = document.getElementById("conflict-banner");
@@ -45,13 +32,9 @@ document.addEventListener("DOMContentLoaded", async () => {
   const deleteBtn = document.getElementById("delete-btn");
 
   let staffCount = 1;
-  let checklistItems = []; // [{ id, label, checked }]
-  let uid = 0;
 
-  // Preimposta la data odierna per i nuovi interventi.
   if (!isEdit) dateInput.value = new Date().toISOString().slice(0, 10);
 
-  // --- Stepper personale richiesto -----------------------------------------
   document.getElementById("staff-minus").addEventListener("click", () => setStaffCount(staffCount - 1));
   document.getElementById("staff-plus").addEventListener("click", () => setStaffCount(staffCount + 1));
   function setStaffCount(n) {
@@ -59,49 +42,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     staffCountEl.textContent = staffCount;
   }
 
-  // --- Checklist attrezzatura -----------------------------------------------
-  function addChecklistItem(label = "", checked = false) {
-    const id = `chk-${uid++}`;
-    checklistItems.push({ id, label, checked });
-    renderChecklist();
-  }
-  function renderChecklist() {
-    checklistEl.innerHTML = checklistItems
-      .map(
-        (item) => `
-      <div class="checklist-item" data-id="${item.id}">
-        <input type="checkbox" ${item.checked ? "checked" : ""} data-role="checked" />
-        <input type="text" placeholder="Es. Saldatrice per rame" value="${escapeHtml(item.label)}" data-role="label" />
-        <button type="button" class="remove-item" title="Rimuovi">✕</button>
-      </div>`
-      )
-      .join("");
-
-    checklistEl.querySelectorAll(".checklist-item").forEach((row) => {
-      const id = row.getAttribute("data-id");
-      row.querySelector('[data-role="checked"]').addEventListener("change", (e) => {
-        checklistItems.find((i) => i.id === id).checked = e.target.checked;
-      });
-      row.querySelector('[data-role="label"]').addEventListener("input", (e) => {
-        checklistItems.find((i) => i.id === id).label = e.target.value;
-      });
-      row.querySelector(".remove-item").addEventListener("click", () => {
-        checklistItems = checklistItems.filter((i) => i.id !== id);
-        renderChecklist();
-      });
-    });
-  }
-  document.getElementById("add-checklist-item").addEventListener("click", () => addChecklistItem());
-
-  chipRow.innerHTML = DEFAULT_EQUIPMENT_SUGGESTIONS.map((s) => `<button type="button" class="chip-suggest">${s}</button>`).join("");
-  chipRow.querySelectorAll(".chip-suggest").forEach((chip) => {
-    chip.addEventListener("click", () => {
-      if (checklistItems.some((i) => i.label === chip.textContent)) return;
-      addChecklistItem(chip.textContent, false);
-    });
-  });
-
-  // --- Pannello "awareness della giornata" -----------------------------------
   async function refreshDayPanel() {
     const dateStr = dateInput.value;
     if (!dateStr) return;
@@ -145,7 +85,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     };
   }
 
-  // --- Precarica i dati in caso di modifica -----------------------------------
   if (isEdit) {
     try {
       const appt = await fetchAppointmentById(editId);
@@ -158,18 +97,16 @@ document.addEventListener("DOMContentLoaded", async () => {
       document.getElementById("status").value = appt.status;
       document.getElementById("notes").value = appt.notes || "";
       setStaffCount(appt.staff_required);
-      (appt.equipment_checklist || []).forEach((i) => addChecklistItem(i.label, i.checked));
       deleteBtn.style.display = "inline-flex";
     } catch (err) {
       showToast("Impossibile caricare l'intervento.", "error");
     }
   } else {
-    document.getElementById("status-field").style.display = "none"; // stato gestito dopo la creazione
+    document.getElementById("status-field").style.display = "none";
   }
 
   refreshDayPanel();
 
-  // --- Salvataggio -------------------------------------------------------------
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
     submitBtn.disabled = true;
@@ -183,15 +120,9 @@ document.addEventListener("DOMContentLoaded", async () => {
       start_time: timeInput.value,
       duration_minutes: Number(durationInput.value),
       staff_required: staffCount,
-      equipment_checklist: checklistItems
-        .filter((i) => i.label.trim())
-        .map((i) => ({ label: i.label.trim(), checked: i.checked })),
       notes: document.getElementById("notes").value.trim() || null,
     };
     if (isEdit) payload.status = document.getElementById("status").value;
-    // Se l'indirizzo cambia, azzera le coordinate salvate per forzare una
-    // nuova geocodifica al prossimo calcolo di itinerario.
-    if (isEdit) payload.latitude = null, payload.longitude = null;
 
     try {
       const saved = isEdit ? await updateAppointment(editId, payload) : await createAppointment(payload);

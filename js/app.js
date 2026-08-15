@@ -114,7 +114,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             </div>
             <div class="meta-row">
               <span class="appt-meta-item">👥 ${a.staff_required} persona/e</span>
-              <span class="appt-meta-item">🔧 ${(a.equipment_checklist || []).length} attrezzi</span>
+              ${(a.allegati || []).length ? `<span class="appt-meta-item">📎 ${a.allegati.length} allegati</span>` : ""}
               ${dateLabel}
               <span class="creator-tag"><span class="avatar">${initials}</span>Creato da ${escapeHtml(a.profiles?.full_name || "—")}</span>
             </div>

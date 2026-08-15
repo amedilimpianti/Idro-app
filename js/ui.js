@@ -79,15 +79,19 @@ function addMinutes(time, minutes) {
   return `${String(nh).padStart(2, "0")}:${String(nm).padStart(2, "0")}`;
 }
 
+/** Mappa completa degli stati di un intervento: pianificazione + esito finale. */
+const STATUS_MAP = {
+  pianificato: { cls: "badge-planned", label: "Pianificato" },
+  in_corso: { cls: "badge-progress", label: "In corso" },
+  completato: { cls: "badge-done", label: "Lavoro effettuato" },
+  da_ultimare: { cls: "badge-unfinished", label: "Da ultimare" },
+  rimandato: { cls: "badge-postponed", label: "Rimandato" },
+  annullato: { cls: "badge-cancelled", label: "Annullato" },
+};
+
 /** Badge HTML per lo stato dell'appuntamento. */
 function statusBadge(status) {
-  const map = {
-    pianificato: { cls: "badge-planned", label: "Pianificato" },
-    in_corso: { cls: "badge-progress", label: "In corso" },
-    completato: { cls: "badge-done", label: "Completato" },
-    annullato: { cls: "badge-cancelled", label: "Annullato" },
-  };
-  const s = map[status] || map.pianificato;
+  const s = STATUS_MAP[status] || STATUS_MAP.pianificato;
   return `<span class="badge ${s.cls}"><span class="badge-dot"></span>${s.label}</span>`;
 }
 

@@ -1,6 +1,6 @@
 // ==========================================================================
 // appuntamenti.js — accesso ai dati per la tabella `appointments`.
-// Usato da dashboard.html, appuntamento.html, dettaglio.html, percorso.html
+// Usato da dashboard.html, appuntamento.html, dettaglio.html, impostazioni.html
 // ==========================================================================
 
 const SELECT_WITH_CREATOR = `*, profiles:created_by ( id, full_name, role )`;
@@ -74,6 +74,28 @@ async function updateAppointment(id, payload) {
 
 async function deleteAppointment(id) {
   const { error } = await window.supabaseClient.from("appointments").delete().eq("id", id);
+  if (error) throw error;
+}
+
+/** Elimina più appuntamenti in un colpo solo (usato dalla pagina Impostazioni). */
+async function deleteAppointmentsBulk(ids) {
+  if (!ids.length) return;
+  const { error } = await window.supabaseClient.from("appointments").delete().in("id", ids);
+  if (error) throw error;
+}
+
+/** Elimina tutti gli appuntamenti con data futura (>= oggi) o passata (< oggi). */
+async function deleteAppointmentsByTimeframe(timeframe) {
+  const todayIso = new Date().toISOString().slice(0, 10);
+  let query = window.supabaseClient.from("appointments").delete();
+  query = timeframe === "future" ? query.gte("appointment_date", todayIso) : query.lt("appointment_date", todayIso);
+  const { error } = await query;
+  if (error) throw error;
+}
+
+/** Elimina assolutamente tutti gli appuntamenti (azzeramento totale). */
+async function deleteAllAppointments() {
+  const { error } = await window.supabaseClient.from("appointments").delete().neq("id", "00000000-0000-0000-0000-000000000000");
   if (error) throw error;
 }
 
