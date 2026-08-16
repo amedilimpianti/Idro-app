@@ -8,8 +8,91 @@ document.addEventListener("DOMContentLoaded", async () => {
   if (!session) return;
 
   setActiveNav();
-  const profile = await getCurrentProfile();
+  let profile = await getCurrentProfile();
   mountUserCard(profile);
+
+  // --- Sezione Account: foto profilo e nome -------------------------------
+  const avatarInput = document.getElementById("avatar-input");
+  const fullnameInput = document.getElementById("account-fullname");
+  const saveAccountBtn = document.getElementById("save-account-btn");
+
+  fullnameInput.value = profile?.full_name || "";
+
+  avatarInput.addEventListener("change", async () => {
+    const file = avatarInput.files[0];
+    if (!file) return;
+    try {
+      profile = await uploadAvatar(file);
+      mountUserCard(profile);
+      showToast("Foto profilo aggiornata.", "success");
+    } catch (err) {
+      showToast(`Errore: ${err.message}`, "error");
+    } finally {
+      avatarInput.value = "";
+    }
+  });
+
+  saveAccountBtn.addEventListener("click", async () => {
+    const name = fullnameInput.value.trim();
+    if (!name) {
+      showToast("Inserisci nome e cognome.", "error");
+      return;
+    }
+    try {
+      profile = await updateProfileName(name);
+      mountUserCard(profile);
+      showToast("Dati account aggiornati.", "success");
+    } catch (err) {
+      showToast(`Errore: ${err.message}`, "error");
+    }
+  });
+
+  // --- Sicurezza account: email e password ---------------------------------
+  const emailInput = document.getElementById("account-email");
+  const saveEmailBtn = document.getElementById("save-email-btn");
+  const passwordInput = document.getElementById("account-password");
+  const passwordConfirmInput = document.getElementById("account-password-confirm");
+  const savePasswordBtn = document.getElementById("save-password-btn");
+
+  const { data: { user } } = await window.supabaseClient.auth.getUser();
+  if (user) emailInput.value = user.email || "";
+
+  saveEmailBtn.addEventListener("click", async () => {
+    const email = emailInput.value.trim();
+    if (!email) {
+      showToast("Inserisci un'email valida.", "error");
+      return;
+    }
+    try {
+      const { error } = await window.supabaseClient.auth.updateUser({ email });
+      if (error) throw error;
+      showToast("Controlla la nuova casella email per confermare il cambio.", "success");
+    } catch (err) {
+      showToast(`Errore: ${err.message}`, "error");
+    }
+  });
+
+  savePasswordBtn.addEventListener("click", async () => {
+    const pwd = passwordInput.value;
+    const pwd2 = passwordConfirmInput.value;
+    if (!pwd || pwd.length < 6) {
+      showToast("La password deve contenere almeno 6 caratteri.", "error");
+      return;
+    }
+    if (pwd !== pwd2) {
+      showToast("Le due password non coincidono.", "error");
+      return;
+    }
+    try {
+      const { error } = await window.supabaseClient.auth.updateUser({ password: pwd });
+      if (error) throw error;
+      showToast("Password aggiornata.", "success");
+      passwordInput.value = "";
+      passwordConfirmInput.value = "";
+    } catch (err) {
+      showToast(`Errore: ${err.message}`, "error");
+    }
+  });
 
   const listContainer = document.getElementById("bulk-list-container");
   const showListBtn = document.getElementById("show-list-btn");
@@ -125,11 +208,11 @@ document.addEventListener("DOMContentLoaded", async () => {
   });
 
   document.getElementById("delete-all-btn").addEventListener("click", async () => {
-    const ok = await confirmModal({
+    const ok = await confirmModalTyped({
       title: "Eliminare TUTTI gli appuntamenti?",
       message: "Questa azione cancella l'intero storico appuntamenti dell'azienda, inclusi allegati collegati. Non può essere annullata.",
+      confirmWord: "ELIMINA",
       confirmLabel: "Elimina tutto",
-      danger: true,
     });
     if (!ok) return;
     try {

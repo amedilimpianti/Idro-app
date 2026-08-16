@@ -42,7 +42,6 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   function render() {
     const appt = currentAppt;
-    const initials = (appt.profiles?.full_name || "?").split(" ").map((p) => p[0]).slice(0, 2).join("").toUpperCase();
     const end = addMinutes(appt.start_time.slice(0, 5), appt.duration_minutes);
 
     document.getElementById("topbar-eyebrow").textContent = `Intervento · ${appt.appointment_date}`;
@@ -59,6 +58,21 @@ document.addEventListener("DOMContentLoaded", async () => {
           ${statusBadge(appt.status)}
         </div>
 
+        <div class="detail-actions">
+          ${
+            appt.client_phone
+              ? `<a class="btn btn-secondary" href="tel:${escapeHtml(appt.client_phone)}">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92Z"/></svg>
+                  Chiama
+                </a>`
+              : ""
+          }
+          <a class="btn btn-secondary" href="${appt.latitude && appt.longitude ? `https://www.google.com/maps/search/?api=1&query=${appt.latitude},${appt.longitude}` : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(appt.address)}`}" target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21c-4.5-4.2-8-7.6-8-11.5A8 8 0 0 1 12 2a8 8 0 0 1 8 7.5C20 13.4 16.5 16.8 12 21Z"/><circle cx="12" cy="9.5" r="2.5"/></svg>
+            Apri in Maps
+          </a>
+        </div>
+
         <div class="pipe-rule"></div>
 
         <div class="detail-grid">
@@ -68,7 +82,7 @@ document.addEventListener("DOMContentLoaded", async () => {
           <div class="detail-item"><div class="k">Personale richiesto</div><div class="v">${appt.staff_required} persona/e</div></div>
           <div class="detail-item"><div class="k">Telefono cliente</div><div class="v">${escapeHtml(appt.client_phone) || "—"}</div></div>
           <div class="detail-item"><div class="k">Creato da</div>
-            <div class="v"><span class="creator-tag"><span class="avatar">${initials}</span>${escapeHtml(appt.profiles?.full_name || "—")} · ${escapeHtml(appt.profiles?.role || "")}</span></div>
+            <div class="v"><span class="creator-tag"><span class="avatar">${avatarInner(appt.profiles)}</span>${escapeHtml(appt.profiles?.full_name || "—")} · ${escapeHtml(appt.profiles?.role || "")}</span></div>
           </div>
         </div>
 

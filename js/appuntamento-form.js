@@ -19,6 +19,8 @@ document.addEventListener("DOMContentLoaded", async () => {
   document.getElementById("form-sub").textContent = isEdit
     ? "Aggiorna i dettagli dell'intervento pianificato."
     : "Registra un nuovo appuntamento per la squadra.";
+  const mobilePageTitle = document.getElementById("mobile-page-title");
+  if (mobilePageTitle) mobilePageTitle.textContent = isEdit ? "Modifica intervento" : "Nuovo intervento";
 
   const form = document.getElementById("appt-form");
   const dateInput = document.getElementById("appointment_date");
@@ -33,6 +35,71 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   let staffCount = 1;
 
+  // --------------------------------------------------------------------
+  // Stepper mobile: 3 passaggi (Cliente → Pianificazione → Note). Su
+  // schermi più larghi le regole CSS mostrano tutti i passaggi assieme e
+  // i controlli di navigazione restano nascosti.
+  // --------------------------------------------------------------------
+  const TOTAL_STEPS = 3;
+  let currentStep = 1;
+  const formSteps = document.querySelectorAll(".form-step");
+  const stepLabels = document.querySelectorAll(".step-label");
+  const stepProgressBar = document.getElementById("stepper-progress-bar");
+  const stepPrevBtn = document.getElementById("step-prev-btn");
+  const stepNextBtn = document.getElementById("step-next-btn");
+
+  function isMobileViewport() {
+    return window.matchMedia("(max-width: 760px)").matches;
+  }
+
+  function updateStepUI() {
+    formSteps.forEach((el) => {
+      el.classList.toggle("active-step", Number(el.getAttribute("data-step")) === currentStep);
+    });
+    stepLabels.forEach((el) => {
+      el.classList.toggle("active", Number(el.getAttribute("data-step-label")) <= currentStep);
+    });
+    if (stepProgressBar) stepProgressBar.style.width = `${(currentStep / TOTAL_STEPS) * 100}%`;
+    if (stepPrevBtn) stepPrevBtn.style.visibility = currentStep === 1 ? "hidden" : "visible";
+    if (stepNextBtn) stepNextBtn.style.display = currentStep === TOTAL_STEPS ? "none" : "inline-flex";
+    if (isMobileViewport()) {
+      submitBtn.style.display = currentStep === TOTAL_STEPS ? "inline-flex" : "none";
+    } else {
+      submitBtn.style.display = "";
+    }
+  }
+
+  function validateCurrentStep() {
+    let valid = true;
+    document.querySelectorAll(`.form-step[data-step="${currentStep}"]`).forEach((stepEl) => {
+      stepEl.querySelectorAll("input[required], select[required], textarea[required]").forEach((inp) => {
+        if (!inp.checkValidity()) {
+          inp.reportValidity();
+          valid = false;
+        }
+      });
+    });
+    return valid;
+  }
+
+  if (stepNextBtn) {
+    stepNextBtn.addEventListener("click", () => {
+      if (!validateCurrentStep()) return;
+      currentStep = Math.min(TOTAL_STEPS, currentStep + 1);
+      updateStepUI();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    });
+  }
+  if (stepPrevBtn) {
+    stepPrevBtn.addEventListener("click", () => {
+      currentStep = Math.max(1, currentStep - 1);
+      updateStepUI();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    });
+  }
+  window.addEventListener("resize", debounce(updateStepUI, 200));
+  updateStepUI();
+
   if (!isEdit) dateInput.value = new Date().toISOString().slice(0, 10);
 
   document.getElementById("staff-minus").addEventListener("click", () => setStaffCount(staffCount - 1));
@@ -41,6 +108,92 @@ document.addEventListener("DOMContentLoaded", async () => {
     staffCount = Math.max(1, Math.min(12, n));
     staffCountEl.textContent = staffCount;
   }
+
+  // --------------------------------------------------------------------
+  // Suggerimenti indirizzo (Google Places Autocomplete). La ricerca è
+  // solo un aiuto: l'utente resta libero di digitare e salvare un
+  // indirizzo anche senza selezionare un suggerimento dall'elenco.
+  // --------------------------------------------------------------------
+  const addressInput = document.getElementById("address");
+  const addressSuggestions = document.getElementById("address-suggestions");
+  const latitudeInput = document.getElementById("latitude");
+  const longitudeInput = document.getElementById("longitude");
+
+  let placesLibrary = null;
+  let sessionToken = null;
+  let addressDebounceTimer = null;
+
+  async function ensurePlacesLibrary() {
+    if (!placesLibrary) placesLibrary = await google.maps.importLibrary("places");
+    return placesLibrary;
+  }
+
+  function hideAddressSuggestions() {
+    addressSuggestions.style.display = "none";
+    addressSuggestions.innerHTML = "";
+  }
+
+  function renderAddressSuggestions(suggestions) {
+    if (!suggestions.length) {
+      hideAddressSuggestions();
+      return;
+    }
+    addressSuggestions.innerHTML = suggestions
+      .map((s, i) => `<div class="address-suggestion-item" data-index="${i}">${escapeHtml(s.placePrediction.text.text)}</div>`)
+      .join("");
+    addressSuggestions.style.display = "block";
+    addressSuggestions.querySelectorAll(".address-suggestion-item").forEach((el) => {
+      el.addEventListener("click", () => selectAddressSuggestion(suggestions[Number(el.getAttribute("data-index"))]));
+    });
+  }
+
+  async function fetchAddressSuggestions(query) {
+    try {
+      const { AutocompleteSessionToken, AutocompleteSuggestion } = await ensurePlacesLibrary();
+      if (!sessionToken) sessionToken = new AutocompleteSessionToken();
+      const { suggestions } = await AutocompleteSuggestion.fetchAutocompleteSuggestions({
+        input: query,
+        sessionToken,
+        includedRegionCodes: ["it"],
+      });
+      renderAddressSuggestions(suggestions || []);
+    } catch (err) {
+      hideAddressSuggestions();
+    }
+  }
+
+  async function selectAddressSuggestion(suggestion) {
+    try {
+      const place = suggestion.placePrediction.toPlace();
+      await place.fetchFields({ fields: ["formattedAddress", "location"] });
+      addressInput.value = place.formattedAddress || addressInput.value;
+      if (place.location) {
+        latitudeInput.value = place.location.lat();
+        longitudeInput.value = place.location.lng();
+      }
+    } catch (err) {
+      /* la selezione non è andata a buon fine: resta il testo digitato */
+    } finally {
+      hideAddressSuggestions();
+      sessionToken = null;
+    }
+  }
+
+  addressInput.addEventListener("input", () => {
+    latitudeInput.value = "";
+    longitudeInput.value = "";
+    clearTimeout(addressDebounceTimer);
+    const query = addressInput.value.trim();
+    if (query.length < 4) {
+      hideAddressSuggestions();
+      return;
+    }
+    addressDebounceTimer = setTimeout(() => fetchAddressSuggestions(query), 300);
+  });
+
+  document.addEventListener("click", (e) => {
+    if (e.target !== addressInput && !addressSuggestions.contains(e.target)) hideAddressSuggestions();
+  });
 
   async function refreshDayPanel() {
     const dateStr = dateInput.value;
@@ -85,12 +238,100 @@ document.addEventListener("DOMContentLoaded", async () => {
     };
   }
 
+  // --------------------------------------------------------------------
+  // Bozza automatica: solo per un nuovo intervento (non in modifica), per
+  // recuperare i dati se l'operatore viene interrotto mentre è in cantiere.
+  // --------------------------------------------------------------------
+  const DRAFT_KEY = "idro_draft_appuntamento";
+  const draftBanner = document.getElementById("draft-banner");
+  const draftDiscardBtn = document.getElementById("draft-discard-btn");
+  const draftRestoreBtn = document.getElementById("draft-restore-btn");
+
+  function collectDraft() {
+    return {
+      client_name: document.getElementById("client_name").value,
+      client_phone: document.getElementById("client_phone").value,
+      address: document.getElementById("address").value,
+      latitude: latitudeInput.value,
+      longitude: longitudeInput.value,
+      appointment_date: dateInput.value,
+      start_time: timeInput.value,
+      duration_minutes: durationInput.value,
+      staff_required: staffCount,
+      notes: document.getElementById("notes").value,
+    };
+  }
+
+  function saveDraft() {
+    try {
+      localStorage.setItem(DRAFT_KEY, JSON.stringify(collectDraft()));
+    } catch (err) {
+      /* storage non disponibile: nessun blocco dell'app */
+    }
+  }
+
+  function clearDraft() {
+    try {
+      localStorage.removeItem(DRAFT_KEY);
+    } catch (err) {
+      /* ignora */
+    }
+  }
+
+  function applyDraft(draft) {
+    document.getElementById("client_name").value = draft.client_name || "";
+    document.getElementById("client_phone").value = draft.client_phone || "";
+    document.getElementById("address").value = draft.address || "";
+    latitudeInput.value = draft.latitude || "";
+    longitudeInput.value = draft.longitude || "";
+    if (draft.appointment_date) dateInput.value = draft.appointment_date;
+    if (draft.start_time) timeInput.value = draft.start_time;
+    if (draft.duration_minutes) durationInput.value = draft.duration_minutes;
+    setStaffCount(Number(draft.staff_required) || 1);
+    document.getElementById("notes").value = draft.notes || "";
+  }
+
+  if (!isEdit) {
+    const rawDraft = localStorage.getItem(DRAFT_KEY);
+    if (rawDraft) {
+      try {
+        const draft = JSON.parse(rawDraft);
+        if (draft && (draft.client_name || draft.address)) {
+          draftBanner.style.display = "flex";
+        }
+      } catch (err) {
+        clearDraft();
+      }
+    }
+    form.addEventListener("input", debounce(saveDraft, 500));
+  }
+
+  draftDiscardBtn.addEventListener("click", () => {
+    clearDraft();
+    draftBanner.style.display = "none";
+  });
+
+  draftRestoreBtn.addEventListener("click", () => {
+    const rawDraft = localStorage.getItem(DRAFT_KEY);
+    if (rawDraft) {
+      try {
+        applyDraft(JSON.parse(rawDraft));
+        refreshDayPanel();
+      } catch (err) {
+        /* ignora bozza non valida */
+      }
+    }
+    draftBanner.style.display = "none";
+  });
+
   if (isEdit) {
     try {
       const appt = await fetchAppointmentById(editId);
       document.getElementById("client_name").value = appt.client_name || "";
       document.getElementById("client_phone").value = appt.client_phone || "";
       document.getElementById("address").value = appt.address || "";
+      latitudeInput.value = appt.latitude ?? "";
+      longitudeInput.value = appt.longitude ?? "";
       dateInput.value = appt.appointment_date;
       timeInput.value = appt.start_time.slice(0, 5);
       durationInput.value = appt.duration_minutes;
@@ -116,6 +357,8 @@ document.addEventListener("DOMContentLoaded", async () => {
       client_name: document.getElementById("client_name").value.trim(),
       client_phone: document.getElementById("client_phone").value.trim() || null,
       address: document.getElementById("address").value.trim(),
+      latitude: latitudeInput.value ? Number(latitudeInput.value) : null,
+      longitude: longitudeInput.value ? Number(longitudeInput.value) : null,
       appointment_date: dateInput.value,
       start_time: timeInput.value,
       duration_minutes: Number(durationInput.value),
@@ -126,6 +369,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     try {
       const saved = isEdit ? await updateAppointment(editId, payload) : await createAppointment(payload);
+      if (!isEdit) clearDraft();
       showToast(isEdit ? "Intervento aggiornato." : "Intervento creato.", "success");
       window.location.href = `dettaglio.html?id=${saved.id}`;
     } catch (err) {

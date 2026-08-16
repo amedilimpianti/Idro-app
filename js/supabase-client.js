@@ -8,8 +8,8 @@
 // ⚠️ CONFIGURAZIONE OBBLIGATORIA
 // Sostituisci questi due valori con quelli del tuo progetto Supabase:
 // Project Settings → API → Project URL / anon public key.
-const SUPABASE_URL = "https://enriphesrcbfmfxwfori.supabase.co";
-const SUPABASE_ANON_KEY = "sb_publishable_qbA2YQBAtqkj6vssasgrjg_3r526XU1";
+const SUPABASE_URL = "https://TUO-PROGETTO.supabase.co";
+const SUPABASE_ANON_KEY = "TUA-CHIAVE-ANON-PUBBLICA";
 
 // Il client viene esposto su window per essere riutilizzato da tutti i moduli
 // senza dover ripetere l'inizializzazione in ogni pagina.
@@ -62,16 +62,52 @@ async function mountUserCard(profile) {
   const roleEls = document.querySelectorAll("[data-user-role]");
   const avatarEls = document.querySelectorAll("[data-user-avatar]");
 
-  const initials = (profile.full_name || profile.email || "?")
-    .split(" ")
-    .map((p) => p[0])
-    .slice(0, 2)
-    .join("")
-    .toUpperCase();
-
   nameEls.forEach((el) => (el.textContent = profile.full_name || "Operatore"));
   roleEls.forEach((el) => (el.textContent = profile.role || "operatore"));
-  avatarEls.forEach((el) => (el.textContent = initials));
+  avatarEls.forEach((el) => (el.innerHTML = avatarInner(profile)));
+}
+
+const AVATAR_BUCKET = "avatars";
+
+/** Carica una nuova foto profilo su Supabase Storage e aggiorna il profilo
+ * dell'utente autenticato con il nuovo avatar_url. Restituisce il profilo aggiornato. */
+async function uploadAvatar(file) {
+  const { data: { user } } = await window.supabaseClient.auth.getUser();
+  if (!user) throw new Error("Sessione non valida.");
+
+  const ext = (file.name.split(".").pop() || "jpg").toLowerCase();
+  const path = `${user.id}/${Date.now()}.${ext}`;
+
+  const { error: uploadError } = await window.supabaseClient.storage
+    .from(AVATAR_BUCKET)
+    .upload(path, file, { upsert: true, contentType: file.type || "image/jpeg" });
+  if (uploadError) throw uploadError;
+
+  const { data: publicUrlData } = window.supabaseClient.storage.from(AVATAR_BUCKET).getPublicUrl(path);
+
+  const { data, error } = await window.supabaseClient
+    .from("profiles")
+    .update({ avatar_url: publicUrlData.publicUrl })
+    .eq("id", user.id)
+    .select()
+    .single();
+  if (error) throw error;
+  return data;
+}
+
+/** Aggiorna il nome visualizzato del profilo dell'utente autenticato. */
+async function updateProfileName(fullName) {
+  const { data: { user } } = await window.supabaseClient.auth.getUser();
+  if (!user) throw new Error("Sessione non valida.");
+
+  const { data, error } = await window.supabaseClient
+    .from("profiles")
+    .update({ full_name: fullName })
+    .eq("id", user.id)
+    .select()
+    .single();
+  if (error) throw error;
+  return data;
 }
 
 async function logout() {

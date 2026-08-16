@@ -3,7 +3,7 @@
 // Usato da dashboard.html, appuntamento.html, dettaglio.html, impostazioni.html
 // ==========================================================================
 
-const SELECT_WITH_CREATOR = `*, profiles:created_by ( id, full_name, role )`;
+const SELECT_WITH_CREATOR = `*, profiles:created_by ( id, full_name, role, avatar_url )`;
 
 /** Recupera gli appuntamenti in un intervallo di date, ordinati per orario. */
 async function fetchAppointments({ dateFrom, dateTo, status, search } = {}) {

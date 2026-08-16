@@ -15,6 +15,14 @@ document.addEventListener("DOMContentLoaded", async () => {
   const statusSelect = document.getElementById("filter-status");
   const searchInput = document.getElementById("filter-search");
   const scopeButtons = document.querySelectorAll("[data-scope]");
+  const filterToggleBtn = document.getElementById("filter-toggle-btn");
+  const filterExtra = document.getElementById("filter-extra");
+
+  filterToggleBtn.addEventListener("click", () => {
+    const isOpen = filterExtra.classList.toggle("open");
+    filterToggleBtn.classList.toggle("btn-primary", isOpen);
+    filterToggleBtn.classList.toggle("btn-secondary", !isOpen);
+  });
 
   const todayIso = new Date().toISOString().slice(0, 10);
   dateInput.value = todayIso;
@@ -98,7 +106,6 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     listEl.innerHTML = data
       .map((a) => {
-        const initials = (a.profiles?.full_name || "?").split(" ").map((p) => p[0]).slice(0, 2).join("").toUpperCase();
         const dateLabel = scope !== "day" ? `<span class="appt-meta-item mono">${a.appointment_date}</span>` : "";
         return `
         <div class="appt-card" data-id="${a.id}">
@@ -116,7 +123,7 @@ document.addEventListener("DOMContentLoaded", async () => {
               <span class="appt-meta-item">👥 ${a.staff_required} persona/e</span>
               ${(a.allegati || []).length ? `<span class="appt-meta-item">📎 ${a.allegati.length} allegati</span>` : ""}
               ${dateLabel}
-              <span class="creator-tag"><span class="avatar">${initials}</span>Creato da ${escapeHtml(a.profiles?.full_name || "—")}</span>
+              <span class="creator-tag"><span class="avatar">${avatarInner(a.profiles)}</span>Creato da ${escapeHtml(a.profiles?.full_name || "—")}</span>
             </div>
           </div>
           <div class="appt-side">

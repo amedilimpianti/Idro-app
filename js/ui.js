@@ -58,6 +58,52 @@ function confirmModal({ title, message, confirmLabel = "Conferma", danger = fals
   });
 }
 
+/**
+ * Apre un modale di conferma che richiede di digitare una parola esatta
+ * prima di abilitare il pulsante di conferma. Usato per le operazioni
+ * più distruttive (es. eliminare tutto lo storico).
+ */
+function confirmModalTyped({ title, message, confirmWord, confirmLabel = "Conferma" }) {
+  return new Promise((resolve) => {
+    const backdrop = document.createElement("div");
+    backdrop.className = "modal-backdrop open";
+    backdrop.innerHTML = `
+      <div class="modal" role="dialog" aria-modal="true">
+        <h3>${title}</h3>
+        <p>${message}</p>
+        <div class="field" style="margin: 14px 0 0;">
+          <label for="typed-confirm-input">Scrivi <strong>${confirmWord}</strong> per confermare</label>
+          <input type="text" id="typed-confirm-input" autocomplete="off" />
+        </div>
+        <div class="modal-actions">
+          <button class="btn btn-secondary" data-action="cancel">Annulla</button>
+          <button class="btn btn-danger" data-action="confirm" disabled>${confirmLabel}</button>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(backdrop);
+
+    const input = backdrop.querySelector("#typed-confirm-input");
+    const confirmBtn = backdrop.querySelector('[data-action="confirm"]');
+    input.addEventListener("input", () => {
+      confirmBtn.disabled = input.value.trim() !== confirmWord;
+    });
+
+    const close = (result) => {
+      backdrop.remove();
+      resolve(result);
+    };
+    backdrop.querySelector('[data-action="cancel"]').addEventListener("click", () => close(false));
+    confirmBtn.addEventListener("click", () => {
+      if (!confirmBtn.disabled) close(true);
+    });
+    backdrop.addEventListener("click", (e) => {
+      if (e.target === backdrop) close(false);
+    });
+    setTimeout(() => input.focus(), 50);
+  });
+}
+
 /** Formatta una data ISO (YYYY-MM-DD) in formato leggibile italiano. */
 function formatDateIt(isoDate) {
   const d = new Date(isoDate + "T00:00:00");
@@ -99,6 +145,25 @@ function escapeHtml(str) {
   const div = document.createElement("div");
   div.textContent = str ?? "";
   return div.innerHTML;
+}
+
+/** Restituisce le iniziali (max 2 lettere) da un nome completo. */
+function getInitials(name) {
+  return (name || "?")
+    .split(" ")
+    .map((p) => p[0])
+    .filter(Boolean)
+    .slice(0, 2)
+    .join("")
+    .toUpperCase();
+}
+
+/** Markup interno di un avatar: foto profilo se presente, altrimenti iniziali. */
+function avatarInner(profile) {
+  if (profile && profile.avatar_url) {
+    return `<img src="${profile.avatar_url}" alt="" />`;
+  }
+  return getInitials(profile && profile.full_name);
 }
 
 function setActiveNav() {
