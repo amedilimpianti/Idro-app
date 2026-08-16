@@ -3,7 +3,9 @@
 Applicazione web PWA multi-utente per la pianificazione e il follow-up degli
 interventi di un'azienda di riparazioni idrauliche: dashboard condivisa,
 tracciabilità "Creato da", awareness della giornata, esito/follow-up per
-ogni intervento e documentazione fotografica con allegati.
+ogni intervento e documentazione fotografica con allegati. Su schermi
+mobile la navigazione tra le sezioni avviene tramite una barra fissa in
+basso (Dashboard, Nuovo, Impostazioni).
 
 ## 1. Struttura del progetto
 
@@ -12,7 +14,7 @@ ogni intervento e documentazione fotografica con allegati.
 /dashboard.html          Elenco e filtri degli interventi
 /appuntamento.html       Creazione / modifica intervento
 /dettaglio.html          Dettaglio, follow-up ed allegati di un intervento
-/impostazioni.html       Eliminazione singola o massiva degli appuntamenti
+/impostazioni.html       Account (foto profilo, nome) e Gestione appuntamenti
 /manifest.json           Manifest PWA
 /css/style.css           Design system (tema chiaro)
 /js/supabase-client.js   Inizializzazione client Supabase + helper sessione
@@ -62,6 +64,15 @@ Per promuovere un utente ad admin:
 update public.profiles set role = 'admin' where id = 'UUID-UTENTE';
 ```
 
+### Foto profilo
+
+Ogni operatore può caricare una propria foto profilo dalla pagina
+**Impostazioni → Account**. Le foto sono salvate nel bucket Supabase Storage
+`avatars`, in una sottocartella con l'id dell'utente, così ognuno può
+caricare/sostituire solo la propria foto. Il bucket è pubblico in lettura
+(per mostrare le anteprime nell'app senza URL firmati). Se non è presente
+alcuna foto, l'app mostra le iniziali del nome.
+
 ## 3. Follow-up degli interventi
 
 Ogni appuntamento ha uno stato che copre sia la pianificazione che l'esito
@@ -88,7 +99,61 @@ aziendale fornito. Per sostituirli in futuro, mantieni gli stessi nomi file
 e le stesse dimensioni (192×192 e 512×512, incluse le varianti "maskable"
 con margine di sicurezza del 20%).
 
-## 6. Deploy su Cloudflare Pages
+## 6. Suggerimenti indirizzo con Google Places
+
+Nel form "Nuovo intervento" il campo indirizzo mostra suggerimenti in
+tempo reale mentre si scrive (Google Places Autocomplete), per ridurre
+errori di battitura. La selezione **non è obbligatoria**: si può comunque
+salvare l'indirizzo digitato liberamente anche senza scegliere un
+suggerimento — se invece se ne seleziona uno, l'app salva anche le
+coordinate geografiche (colonne `latitude`/`longitude`, già presenti nello
+schema), usate per aprire una posizione precisa su Google Maps dal
+dettaglio dell'intervento.
+
+Per attivarlo serve una API key di Google Cloud. Se non hai mai usato
+Google Cloud, segui questi passaggi:
+
+1. **Crea un account e un progetto.** Vai su
+   [console.cloud.google.com](https://console.cloud.google.com), accedi con
+   un account Google e crea un nuovo progetto (in alto a sinistra → "Nuovo
+   progetto"). Dagli un nome a piacere, es. "idroperative".
+2. **Attiva la fatturazione.** Vai su **Fatturazione** nel menu laterale e
+   collega una carta di credito. È un passaggio obbligatorio anche se non
+   prevedi di superare mai la soglia gratuita: Google richiede un metodo di
+   pagamento attivo per usare le API di Places, ma con il volume di un'app
+   come questa (poche decine di ricerche indirizzo al mese) resterai
+   verosimilmente a **costo zero**, perché le richieste di autocompletamento
+   che terminano con una selezione sono gratuite.
+3. **Abilita le API necessarie.** Nel menu laterale vai su **API e servizi →
+   Libreria**, cerca e abilita entrambe:
+   - **Places API (New)**
+   - **Maps JavaScript API**
+4. **Crea la API key.** Vai su **API e servizi → Credenziali → + Crea
+   credenziali → Chiave API**. Viene generata una stringa: copiala.
+5. **Restringi la key (fortemente consigliato).** Clicca sulla key appena
+   creata per modificarla:
+   - In **Restrizioni per applicazione**, scegli **Referrer HTTP (siti
+     web)** e inserisci il dominio dove pubblichi l'app (es.
+     `https://tuosito.pages.dev/*` e, se lo usi anche in locale,
+     `http://localhost:*/*`).
+   - In **Restrizioni API**, scegli **Limita chiave** e seleziona solo
+     "Places API (New)" e "Maps JavaScript API".
+   - Salva.
+6. **Inserisci la key nel progetto.** Apri `js/config.js` e sostituisci
+   `INSERISCI_QUI_LA_TUA_API_KEY` con la key copiata al passaggio 4:
+   ```js
+   const GOOGLE_MAPS_API_KEY = "AIzaSy...la-tua-key...";
+   ```
+7. **Ripubblica l'app** (nuovo commit/push, o ricarica i file se fai deploy
+   manuale). Al primo avvio della pagina "Nuovo intervento" i suggerimenti
+   dovrebbero comparire non appena digiti almeno 4 caratteri nel campo
+   indirizzo.
+
+Se in futuro vuoi monitorare o limitare la spesa, in **Fatturazione →
+Budget e avvisi** puoi impostare una soglia (es. 5€) che ti invia
+un'email se venisse mai superata.
+
+## 7. Deploy su Cloudflare Pages
 
 1. Carica l'intero contenuto di questa cartella nella **radice** di una
    repository GitHub (non in una sottocartella).
@@ -100,7 +165,7 @@ con margine di sicurezza del 20%).
    - **Build output directory:** `/`
 4. Deploy. Ogni push su `main` pubblica automaticamente una nuova versione.
 
-## 7. Estensioni future suggerite
+## 8. Estensioni future suggerite
 
 - Firma digitale del cliente a fine intervento.
 - Reportistica ore/persona per la fatturazione.
