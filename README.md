@@ -99,59 +99,22 @@ aziendale fornito. Per sostituirli in futuro, mantieni gli stessi nomi file
 e le stesse dimensioni (192×192 e 512×512, incluse le varianti "maskable"
 con margine di sicurezza del 20%).
 
-## 6. Suggerimenti indirizzo con Google Places
+## 6. Modalità Auto
 
-Nel form "Nuovo intervento" il campo indirizzo mostra suggerimenti in
-tempo reale mentre si scrive (Google Places Autocomplete), per ridurre
-errori di battitura. La selezione **non è obbligatoria**: si può comunque
-salvare l'indirizzo digitato liberamente anche senza scegliere un
-suggerimento — se invece se ne seleziona uno, l'app salva anche le
-coordinate geografiche (colonne `latitude`/`longitude`, già presenti nello
-schema), usate per aprire una posizione precisa su Google Maps dal
-dettaglio dell'intervento.
+Dalla scorciatoia visibile in alto in ogni pagina (icona a forma di
+furgone) o dal menu laterale, si accede a una schermata dedicata pensata
+per l'uso hands-free mentre si è fermi in auto, prima di partire:
 
-Per attivarlo serve una API key di Google Cloud. Se non hai mai usato
-Google Cloud, segui questi passaggi:
+- ricerca vocale o testuale degli appuntamenti ("che appuntamento ho
+  oggi", "prossimo appuntamento", nome cliente, orario…)
+- lettura ad alta voce del risultato
+- pulsante "Naviga" che avvia subito le indicazioni stradali su Google
+  Maps verso l'indirizzo dell'intervento
 
-1. **Crea un account e un progetto.** Vai su
-   [console.cloud.google.com](https://console.cloud.google.com), accedi con
-   un account Google e crea un nuovo progetto (in alto a sinistra → "Nuovo
-   progetto"). Dagli un nome a piacere, es. "idroperative".
-2. **Attiva la fatturazione.** Vai su **Fatturazione** nel menu laterale e
-   collega una carta di credito. È un passaggio obbligatorio anche se non
-   prevedi di superare mai la soglia gratuita: Google richiede un metodo di
-   pagamento attivo per usare le API di Places, ma con il volume di un'app
-   come questa (poche decine di ricerche indirizzo al mese) resterai
-   verosimilmente a **costo zero**, perché le richieste di autocompletamento
-   che terminano con una selezione sono gratuite.
-3. **Abilita le API necessarie.** Nel menu laterale vai su **API e servizi →
-   Libreria**, cerca e abilita entrambe:
-   - **Places API (New)**
-   - **Maps JavaScript API**
-4. **Crea la API key.** Vai su **API e servizi → Credenziali → + Crea
-   credenziali → Chiave API**. Viene generata una stringa: copiala.
-5. **Restringi la key (fortemente consigliato).** Clicca sulla key appena
-   creata per modificarla:
-   - In **Restrizioni per applicazione**, scegli **Referrer HTTP (siti
-     web)** e inserisci il dominio dove pubblichi l'app (es.
-     `https://tuosito.pages.dev/*` e, se lo usi anche in locale,
-     `http://localhost:*/*`).
-   - In **Restrizioni API**, scegli **Limita chiave** e seleziona solo
-     "Places API (New)" e "Maps JavaScript API".
-   - Salva.
-6. **Inserisci la key nel progetto.** Apri `js/config.js` e sostituisci
-   `INSERISCI_QUI_LA_TUA_API_KEY` con la key copiata al passaggio 4:
-   ```js
-   const GOOGLE_MAPS_API_KEY = "AIzaSy...la-tua-key...";
-   ```
-7. **Ripubblica l'app** (nuovo commit/push, o ricarica i file se fai deploy
-   manuale). Al primo avvio della pagina "Nuovo intervento" i suggerimenti
-   dovrebbero comparire non appena digiti almeno 4 caratteri nel campo
-   indirizzo.
-
-Se in futuro vuoi monitorare o limitare la spesa, in **Fatturazione →
-Budget e avvisi** puoi impostare una soglia (es. 5€) che ti invia
-un'email se venisse mai superata.
+L'attivazione è manuale (un tap): non c'è rilevamento automatico della
+connessione Bluetooth/WiFi del veicolo, che richiederebbe una versione
+nativa dell'app. Il riconoscimento vocale funziona su Chrome/Android; su
+iPhone/Safari resta disponibile la ricerca testuale.
 
 ## 7. Deploy su Cloudflare Pages
 
@@ -171,3 +134,9 @@ un'email se venisse mai superata.
 - Reportistica ore/persona per la fatturazione.
 - Ruolo "tecnico" con vista limitata ai soli interventi assegnati.
 - Notifiche push quando un intervento viene assegnato.
+- Suggerimenti indirizzo durante la digitazione (Google Places o
+  alternative), se in futuro si vorrà ridurre gli errori di battitura.
+- Rilevamento automatico della Modalità Auto tramite connessione
+  Bluetooth del veicolo (richiede una versione nativa dell'app).
+- Assistente conversazionale (IA) per interrogare gli appuntamenti in
+  linguaggio naturale dalla Modalità Auto.

@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover" />
+<title>Modalità Auto — IDROPERATIVE</title>
+<meta name="theme-color" content="#0E1417" />
+<link rel="manifest" href="manifest.json" />
+<link rel="icon" href="icons/icon-192.png" />
+<link rel="apple-touch-icon" href="icons/icon-192.png" />
+<link rel="stylesheet" href="css/style.css" />
+</head>
+<body data-page="auto">
+
+<div class="auto-shell">
+  <div class="auto-header">
+    <a href="dashboard.html" class="auto-exit-btn" aria-label="Esci dalla modalità auto">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M18 6 6 18M6 6l12 12"/></svg>
+    </a>
+    <div class="auto-title">Modalità Auto</div>
+    <div style="width:44px;"></div>
+  </div>
+
+  <div class="auto-quick-chips">
+    <button type="button" class="auto-chip" data-query="oggi">Oggi</button>
+    <button type="button" class="auto-chip" data-query="domani">Domani</button>
+    <button type="button" class="auto-chip" data-query="prossimo appuntamento">Prossimo</button>
+  </div>
+
+  <div class="auto-mic-wrap">
+    <button type="button" class="auto-mic-btn" id="mic-btn" aria-label="Ascolta comando vocale">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10a7 7 0 0 0 14 0"/><path d="M12 19v3"/></svg>
+    </button>
+    <div class="auto-mic-hint" id="mic-hint">Tocca e parla, es. "che appuntamento ho oggi"</div>
+  </div>
+
+  <form class="auto-text-form" id="auto-text-form">
+    <input type="text" id="auto-text-input" placeholder="oppure scrivi qui…" autocomplete="off" />
+    <button type="submit" class="auto-text-submit" aria-label="Cerca">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+    </button>
+  </form>
+
+  <div class="auto-status" id="auto-status"></div>
+  <div class="auto-results" id="auto-results">
+    <div class="auto-empty">Tocca "Oggi", "Prossimo" oppure usa la voce per cercare un appuntamento.</div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/supabase-client.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/appuntamenti.js"></script>
+<script src="js/modalita-auto.js"></script>
+</body>
+</html>
