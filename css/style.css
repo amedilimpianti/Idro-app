@@ -287,6 +287,7 @@ textarea { resize: vertical; min-height: 80px; }
 /* Stepper mobile del form intervento */
 .stepper-progress { display: none; }
 .step-nav { display: none; }
+.bottom-nav { display: none; }
 
 /* Dettaglio: azioni rapide */
 .detail-actions { display: flex; gap: 10px; margin: 14px 0 4px; flex-wrap: wrap; }
@@ -525,5 +526,3 @@ body[data-page="auto"] { background: #0E1417; }
   .step-nav { display: flex; gap: 10px; margin-top: 4px; }
   .step-nav .btn { flex: 1; }
 }
-
-.bottom-nav { display: none; }
