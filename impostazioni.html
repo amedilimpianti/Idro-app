@@ -17,11 +17,7 @@
     <div class="brand-mark" style="width:28px;height:28px;"><img src="icons/icon-192.png" alt="IDROPERATIVE" /></div>
     <div class="brand-text" style="font-size:14px;">IDRO<span>PERATIVE</span></div>
   </div>
-  <nav class="mobile-topbar-links">
-    <a href="dashboard.html" data-nav="dashboard"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg></a>
-    <a href="appuntamento.html" data-nav="nuovo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg></a>
-    <a href="impostazioni.html" data-nav="impostazioni"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1Z"/></svg></a>
-  </nav>
+  <div class="mobile-page-title" id="mobile-page-title">Impostazioni</div>
 </div>
 
 <div class="app-shell">
@@ -63,51 +59,117 @@
   <main class="main">
     <div class="topbar">
       <div>
-        <span class="eyebrow">GESTIONE DATI</span>
+        <span class="eyebrow">IL TUO SPAZIO</span>
         <h1>Impostazioni</h1>
-        <p>Gestisci in blocco gli appuntamenti registrati nell'app.</p>
+        <p>Gestisci il tuo account e i dati dell'app.</p>
       </div>
     </div>
 
-    <div class="card">
-      <div class="card-header"><h2>Eliminazione rapida</h2></div>
-
-      <div class="settings-row">
-        <div class="info">
-          <h4>Elimina tutti gli appuntamenti futuri</h4>
-          <p>Rimuove ogni intervento con data odierna o successiva.</p>
+    <div class="settings-section">
+      <div class="settings-section-title">Account</div>
+      <div class="card">
+        <div class="profile-photo-row">
+          <div class="profile-photo-wrap">
+            <div class="avatar" data-user-avatar>--</div>
+            <label class="profile-photo-edit" for="avatar-input" title="Cambia foto profilo">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
+            </label>
+            <input type="file" id="avatar-input" class="profile-photo-input" accept="image/*" />
+          </div>
+          <div class="profile-photo-info">
+            <div class="name" data-user-name>Caricamento…</div>
+            <div class="role" data-user-role></div>
+          </div>
         </div>
-        <button type="button" class="btn btn-danger" id="delete-future-btn">Elimina futuri</button>
+
+        <div class="field">
+          <label for="account-fullname">Nome e cognome</label>
+          <input type="text" id="account-fullname" placeholder="Nome e cognome" />
+        </div>
+        <button type="button" class="btn btn-primary" id="save-account-btn">Salva modifiche</button>
       </div>
 
-      <div class="settings-row">
-        <div class="info">
-          <h4>Elimina tutti gli appuntamenti passati</h4>
-          <p>Rimuove ogni intervento con data precedente a oggi.</p>
+      <div class="card">
+        <div class="card-header"><h2>Sicurezza account</h2></div>
+        <div class="field">
+          <label for="account-email">Email</label>
+          <input type="email" id="account-email" placeholder="nome@email.it" />
         </div>
-        <button type="button" class="btn btn-danger" id="delete-past-btn">Elimina passati</button>
-      </div>
+        <button type="button" class="btn btn-secondary" id="save-email-btn">Aggiorna email</button>
 
-      <div class="settings-row">
-        <div class="info">
-          <h4>Elimina assolutamente tutto</h4>
-          <p>Cancella l'intero storico appuntamenti dell'azienda.</p>
+        <div class="pipe-rule"></div>
+
+        <div class="field-row">
+          <div class="field">
+            <label for="account-password">Nuova password</label>
+            <input type="password" id="account-password" placeholder="Almeno 6 caratteri" autocomplete="new-password" />
+          </div>
+          <div class="field">
+            <label for="account-password-confirm">Conferma password</label>
+            <input type="password" id="account-password-confirm" placeholder="Ripeti la password" autocomplete="new-password" />
+          </div>
         </div>
-        <button type="button" class="btn btn-danger" id="delete-all-btn">Elimina tutto</button>
+        <button type="button" class="btn btn-secondary" id="save-password-btn">Aggiorna password</button>
       </div>
     </div>
 
-    <div class="card">
-      <div class="card-header"><h2>Eliminazione singola</h2></div>
-      <p>Seleziona manualmente uno o più appuntamenti specifici da eliminare.</p>
-      <button type="button" class="btn btn-secondary" id="show-list-btn">Seleziona singolarmente</button>
+    <details class="settings-section settings-accordion">
+      <summary class="settings-section-title">Gestione appuntamenti</summary>
+      <div class="card">
+        <div class="card-header"><h2>Eliminazione rapida</h2></div>
 
-      <div id="bulk-list-container" style="display:none; margin-top:14px;"></div>
+        <div class="settings-row">
+          <div class="info">
+            <h4>Elimina tutti gli appuntamenti futuri</h4>
+            <p>Rimuove ogni intervento con data odierna o successiva.</p>
+          </div>
+          <button type="button" class="btn btn-danger" id="delete-future-btn">Elimina futuri</button>
+        </div>
 
-      <button type="button" class="btn btn-danger btn-block" id="delete-selected-btn" style="margin-top:14px;">Elimina selezionati</button>
-    </div>
+        <div class="settings-row">
+          <div class="info">
+            <h4>Elimina tutti gli appuntamenti passati</h4>
+            <p>Rimuove ogni intervento con data precedente a oggi.</p>
+          </div>
+          <button type="button" class="btn btn-danger" id="delete-past-btn">Elimina passati</button>
+        </div>
+
+        <div class="settings-row">
+          <div class="info">
+            <h4>Elimina assolutamente tutto</h4>
+            <p>Cancella l'intero storico appuntamenti dell'azienda.</p>
+          </div>
+          <button type="button" class="btn btn-danger" id="delete-all-btn">Elimina tutto</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header"><h2>Eliminazione singola</h2></div>
+        <p>Seleziona manualmente uno o più appuntamenti specifici da eliminare.</p>
+        <button type="button" class="btn btn-secondary" id="show-list-btn">Seleziona singolarmente</button>
+
+        <div id="bulk-list-container" style="display:none; margin-top:14px;"></div>
+
+        <button type="button" class="btn btn-danger btn-block" id="delete-selected-btn" style="margin-top:14px;">Elimina selezionati</button>
+      </div>
+    </details>
   </main>
 </div>
+
+<nav class="bottom-nav">
+  <a href="dashboard.html" data-nav="dashboard">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg>
+    <span>Dashboard</span>
+  </a>
+  <a href="appuntamento.html" data-nav="nuovo" class="fab">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+    <span>Nuovo</span>
+  </a>
+  <a href="impostazioni.html" data-nav="impostazioni">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1Z"/></svg>
+    <span>Impostazioni</span>
+  </a>
+</nav>
 
 <div id="toast-root"></div>
 
