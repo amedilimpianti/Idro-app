@@ -8,8 +8,8 @@
 // ⚠️ CONFIGURAZIONE OBBLIGATORIA
 // Sostituisci questi due valori con quelli del tuo progetto Supabase:
 // Project Settings → API → Project URL / anon public key.
-const SUPABASE_URL = "https://enriphesrcbfmfxwfori.supabase.co";
-const SUPABASE_ANON_KEY = "sb_publishable_qbA2YQBAtqkj6vssasgrjg_3r526XU1";
+const SUPABASE_URL = "https://TUO-PROGETTO.supabase.co";
+const SUPABASE_ANON_KEY = "TUA-CHIAVE-ANON-PUBBLICA";
 
 // Il client viene esposto su window per essere riutilizzato da tutti i moduli
 // senza dover ripetere l'inizializzazione in ogni pagina.

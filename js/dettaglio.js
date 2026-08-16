@@ -67,9 +67,9 @@ document.addEventListener("DOMContentLoaded", async () => {
                 </a>`
               : ""
           }
-          <a class="btn btn-secondary" href="${appt.latitude && appt.longitude ? `https://www.google.com/maps/search/?api=1&query=${appt.latitude},${appt.longitude}` : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(appt.address)}`}" target="_blank" rel="noopener">
+          <a class="btn btn-secondary" href="https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(appt.address)}&travelmode=driving" target="_blank" rel="noopener">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21c-4.5-4.2-8-7.6-8-11.5A8 8 0 0 1 12 2a8 8 0 0 1 8 7.5C20 13.4 16.5 16.8 12 21Z"/><circle cx="12" cy="9.5" r="2.5"/></svg>
-            Apri in Maps
+            Avvia navigazione
           </a>
         </div>
 

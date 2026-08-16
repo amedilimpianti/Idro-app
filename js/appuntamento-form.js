@@ -110,91 +110,9 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 
   // --------------------------------------------------------------------
-  // Suggerimenti indirizzo (Google Places Autocomplete). La ricerca è
-  // solo un aiuto: l'utente resta libero di digitare e salvare un
-  // indirizzo anche senza selezionare un suggerimento dall'elenco.
+  // Awareness della giornata: mostra gli altri interventi già fissati per
+  // la data selezionata e segnala eventuali sovrapposizioni orarie.
   // --------------------------------------------------------------------
-  const addressInput = document.getElementById("address");
-  const addressSuggestions = document.getElementById("address-suggestions");
-  const latitudeInput = document.getElementById("latitude");
-  const longitudeInput = document.getElementById("longitude");
-
-  let placesLibrary = null;
-  let sessionToken = null;
-  let addressDebounceTimer = null;
-
-  async function ensurePlacesLibrary() {
-    if (!placesLibrary) placesLibrary = await google.maps.importLibrary("places");
-    return placesLibrary;
-  }
-
-  function hideAddressSuggestions() {
-    addressSuggestions.style.display = "none";
-    addressSuggestions.innerHTML = "";
-  }
-
-  function renderAddressSuggestions(suggestions) {
-    if (!suggestions.length) {
-      hideAddressSuggestions();
-      return;
-    }
-    addressSuggestions.innerHTML = suggestions
-      .map((s, i) => `<div class="address-suggestion-item" data-index="${i}">${escapeHtml(s.placePrediction.text.text)}</div>`)
-      .join("");
-    addressSuggestions.style.display = "block";
-    addressSuggestions.querySelectorAll(".address-suggestion-item").forEach((el) => {
-      el.addEventListener("click", () => selectAddressSuggestion(suggestions[Number(el.getAttribute("data-index"))]));
-    });
-  }
-
-  async function fetchAddressSuggestions(query) {
-    try {
-      const { AutocompleteSessionToken, AutocompleteSuggestion } = await ensurePlacesLibrary();
-      if (!sessionToken) sessionToken = new AutocompleteSessionToken();
-      const { suggestions } = await AutocompleteSuggestion.fetchAutocompleteSuggestions({
-        input: query,
-        sessionToken,
-        includedRegionCodes: ["it"],
-      });
-      renderAddressSuggestions(suggestions || []);
-    } catch (err) {
-      hideAddressSuggestions();
-    }
-  }
-
-  async function selectAddressSuggestion(suggestion) {
-    try {
-      const place = suggestion.placePrediction.toPlace();
-      await place.fetchFields({ fields: ["formattedAddress", "location"] });
-      addressInput.value = place.formattedAddress || addressInput.value;
-      if (place.location) {
-        latitudeInput.value = place.location.lat();
-        longitudeInput.value = place.location.lng();
-      }
-    } catch (err) {
-      /* la selezione non è andata a buon fine: resta il testo digitato */
-    } finally {
-      hideAddressSuggestions();
-      sessionToken = null;
-    }
-  }
-
-  addressInput.addEventListener("input", () => {
-    latitudeInput.value = "";
-    longitudeInput.value = "";
-    clearTimeout(addressDebounceTimer);
-    const query = addressInput.value.trim();
-    if (query.length < 4) {
-      hideAddressSuggestions();
-      return;
-    }
-    addressDebounceTimer = setTimeout(() => fetchAddressSuggestions(query), 300);
-  });
-
-  document.addEventListener("click", (e) => {
-    if (e.target !== addressInput && !addressSuggestions.contains(e.target)) hideAddressSuggestions();
-  });
-
   async function refreshDayPanel() {
     const dateStr = dateInput.value;
     if (!dateStr) return;
@@ -252,8 +170,6 @@ document.addEventListener("DOMContentLoaded", async () => {
       client_name: document.getElementById("client_name").value,
       client_phone: document.getElementById("client_phone").value,
       address: document.getElementById("address").value,
-      latitude: latitudeInput.value,
-      longitude: longitudeInput.value,
       appointment_date: dateInput.value,
       start_time: timeInput.value,
       duration_minutes: durationInput.value,
@@ -282,8 +198,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     document.getElementById("client_name").value = draft.client_name || "";
     document.getElementById("client_phone").value = draft.client_phone || "";
     document.getElementById("address").value = draft.address || "";
-    latitudeInput.value = draft.latitude || "";
-    longitudeInput.value = draft.longitude || "";
     if (draft.appointment_date) dateInput.value = draft.appointment_date;
     if (draft.start_time) timeInput.value = draft.start_time;
     if (draft.duration_minutes) durationInput.value = draft.duration_minutes;
@@ -330,8 +244,6 @@ document.addEventListener("DOMContentLoaded", async () => {
       document.getElementById("client_name").value = appt.client_name || "";
       document.getElementById("client_phone").value = appt.client_phone || "";
       document.getElementById("address").value = appt.address || "";
-      latitudeInput.value = appt.latitude ?? "";
-      longitudeInput.value = appt.longitude ?? "";
       dateInput.value = appt.appointment_date;
       timeInput.value = appt.start_time.slice(0, 5);
       durationInput.value = appt.duration_minutes;
@@ -357,8 +269,6 @@ document.addEventListener("DOMContentLoaded", async () => {
       client_name: document.getElementById("client_name").value.trim(),
       client_phone: document.getElementById("client_phone").value.trim() || null,
       address: document.getElementById("address").value.trim(),
-      latitude: latitudeInput.value ? Number(latitudeInput.value) : null,
-      longitude: longitudeInput.value ? Number(longitudeInput.value) : null,
       appointment_date: dateInput.value,
       start_time: timeInput.value,
       duration_minutes: Number(durationInput.value),
