@@ -50,6 +50,26 @@
 * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 html, body { height: 100%; }
 
+/* Nessun testo è selezionabile per default (niente evidenziazione al tocco
+   prolungato, niente barra di ricerca di Android/Chrome che appare sopra il
+   testo selezionato). Riattivata solo dove serve davvero, cioè nei campi in
+   cui l'utente digita o incolla testo. Il conflitto tra gesto di selezione e
+   gesto di scroll è anche la causa principale dello scatto/lag percepito
+   scorrendo pagine di testo: con la selezione disattivata lo scroll torna
+   fluido perché il browser non deve più "decidere" tra i due gesti. */
+* {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+input, textarea, select, [contenteditable="true"] {
+  -webkit-user-select: text;
+  -moz-user-select: text;
+  user-select: text;
+  -webkit-touch-callout: default;
+}
+
 /* Transizioni più fluide tra le pagine (supportate su Chrome/Android) */
 @view-transition { navigation: auto; }
 ::view-transition-old(root), ::view-transition-new(root) { animation-duration: 180ms; animation-timing-function: cubic-bezier(.4,0,.2,1); }
@@ -570,6 +590,25 @@ body[data-page="auto"] { background: #0E1417; }
 }
 .time-picker-item:hover { background: var(--surface-3); }
 .time-picker-item.is-selected { background: var(--copper); color: #fff; font-weight: 700; }
+
+/* Modale "Assegna a" (incaricati) — sostituisce la <select> nativa */
+.assignee-picker-list {
+  max-height: 340px; overflow-y: auto; display: flex; flex-direction: column; gap: 2px;
+  border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 4px; background: var(--surface-2);
+}
+.assignee-picker-item {
+  display: flex; align-items: center; gap: 10px; width: 100%; text-align: left;
+  border: none; background: transparent; padding: 9px 10px; border-radius: var(--radius-sm);
+  font-family: var(--font-body); font-size: 14px; font-weight: 600; color: var(--text);
+  cursor: pointer; transition: var(--transition);
+}
+.assignee-picker-item:hover { background: var(--surface-3); }
+.assignee-picker-item.is-selected { background: var(--copper); color: #fff; }
+.assignee-picker-item.is-selected .avatar { background: rgba(255,255,255,0.25); color: #fff; }
+.assignee-picker-item .avatar { width: 30px; height: 30px; font-size: 12px; flex-shrink: 0; }
+.assignee-picker-name { flex: 1; }
+.assignee-picker-check { width: 16px; height: 16px; flex-shrink: 0; opacity: 0; }
+.assignee-picker-item.is-selected .assignee-picker-check { opacity: 1; }
 
 /* Chip preset durata prevista */
 .duration-chips { display: flex; flex-wrap: wrap; gap: 8px; }
