@@ -173,6 +173,23 @@ function setActiveNav() {
   });
 }
 
+// Collega automaticamente tutti i pulsanti di logout presenti nella pagina
+// (sidenav desktop, icona nel top bar mobile, ecc.), con richiesta di conferma.
+document.addEventListener("DOMContentLoaded", () => {
+  document.querySelectorAll("[data-logout-btn]").forEach((el) => {
+    el.addEventListener("click", async (e) => {
+      e.preventDefault();
+      const ok = await confirmModal({
+        title: "Uscire dall'app?",
+        message: "Dovrai effettuare nuovamente l'accesso per continuare.",
+        confirmLabel: "Esci",
+        danger: true,
+      });
+      if (ok) logout();
+    });
+  });
+});
+
 // Il Service Worker è stato rimosso (causava problemi di cache durante lo
 // sviluppo attivo). Questo blocco disinstalla automaticamente qualsiasi
 // versione vecchia già registrata sui dispositivi degli utenti, così non è

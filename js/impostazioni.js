@@ -165,8 +165,12 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
     if (!ok) return;
     try {
-      await deleteAppointmentsBulk(selected);
-      showToast("Appuntamenti eliminati.", "success");
+      const { deleted, total } = await deleteAppointmentsBulk(selected);
+      if (deleted < total) {
+        showToast(`Eliminati ${deleted} di ${total}: gli altri sono di un altro operatore, solo un admin può rimuoverli.`, "error");
+      } else {
+        showToast("Appuntamenti eliminati.", "success");
+      }
       await loadList();
     } catch (err) {
       showToast(`Errore: ${err.message}`, "error");
@@ -182,8 +186,12 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
     if (!ok) return;
     try {
-      await deleteAppointmentsByTimeframe("future");
-      showToast("Appuntamenti futuri eliminati.", "success");
+      const { deleted, total } = await deleteAppointmentsByTimeframe("future");
+      if (deleted < total) {
+        showToast(`Eliminati ${deleted} di ${total}: gli altri sono di un altro operatore, solo un admin può rimuoverli.`, "error");
+      } else {
+        showToast("Appuntamenti futuri eliminati.", "success");
+      }
       if (listVisible) await loadList();
     } catch (err) {
       showToast(`Errore: ${err.message}`, "error");
@@ -199,8 +207,12 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
     if (!ok) return;
     try {
-      await deleteAppointmentsByTimeframe("past");
-      showToast("Appuntamenti passati eliminati.", "success");
+      const { deleted, total } = await deleteAppointmentsByTimeframe("past");
+      if (deleted < total) {
+        showToast(`Eliminati ${deleted} di ${total}: gli altri sono di un altro operatore, solo un admin può rimuoverli.`, "error");
+      } else {
+        showToast("Appuntamenti passati eliminati.", "success");
+      }
       if (listVisible) await loadList();
     } catch (err) {
       showToast(`Errore: ${err.message}`, "error");
@@ -216,8 +228,12 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
     if (!ok) return;
     try {
-      await deleteAllAppointments();
-      showToast("Tutti gli appuntamenti sono stati eliminati.", "success");
+      const { deleted, total } = await deleteAllAppointments();
+      if (deleted < total) {
+        showToast(`Eliminati ${deleted} di ${total}: gli altri sono di un altro operatore, solo un admin può rimuoverli.`, "error");
+      } else {
+        showToast("Tutti gli appuntamenti sono stati eliminati.", "success");
+      }
       if (listVisible) await loadList();
     } catch (err) {
       showToast(`Errore: ${err.message}`, "error");

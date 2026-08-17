@@ -77,26 +77,51 @@ async function deleteAppointment(id) {
   if (error) throw error;
 }
 
-/** Elimina più appuntamenti in un colpo solo (usato dalla pagina Impostazioni). */
+/** Elimina più appuntamenti in un colpo solo (usato dalla pagina Impostazioni).
+ * Restituisce quanti sono stati effettivamente eliminati (le policy di sicurezza
+ * permettono di eliminare solo i propri interventi, a meno di essere admin). */
 async function deleteAppointmentsBulk(ids) {
-  if (!ids.length) return;
-  const { error } = await window.supabaseClient.from("appointments").delete().in("id", ids);
+  if (!ids.length) return { deleted: 0, total: 0 };
+  const { data, error } = await window.supabaseClient.from("appointments").delete().in("id", ids).select("id");
   if (error) throw error;
+  return { deleted: data ? data.length : 0, total: ids.length };
 }
 
-/** Elimina tutti gli appuntamenti con data futura (>= oggi) o passata (< oggi). */
+/** Elimina tutti gli appuntamenti con data futura (>= oggi) o passata (< oggi).
+ * Restituisce { deleted, total }: se deleted < total, alcuni interventi non sono
+ * stati eliminati perché creati da un altro operatore (solo un admin può farlo). */
 async function deleteAppointmentsByTimeframe(timeframe) {
   const todayIso = new Date().toISOString().slice(0, 10);
-  let query = window.supabaseClient.from("appointments").delete();
-  query = timeframe === "future" ? query.gte("appointment_date", todayIso) : query.lt("appointment_date", todayIso);
-  const { error } = await query;
+  const applyFilter = (q) => (timeframe === "future" ? q.gte("appointment_date", todayIso) : q.lt("appointment_date", todayIso));
+
+  const { count: total, error: countError } = await applyFilter(
+    window.supabaseClient.from("appointments").select("id", { count: "exact", head: true })
+  );
+  if (countError) throw countError;
+
+  const { data, error } = await applyFilter(window.supabaseClient.from("appointments").delete()).select("id");
   if (error) throw error;
+
+  return { deleted: data ? data.length : 0, total: total || 0 };
 }
 
-/** Elimina assolutamente tutti gli appuntamenti (azzeramento totale). */
+/** Elimina assolutamente tutti gli appuntamenti (azzeramento totale).
+ * Restituisce { deleted, total } per segnalare eventuali interventi non
+ * eliminabili perché creati da un altro operatore. */
 async function deleteAllAppointments() {
-  const { error } = await window.supabaseClient.from("appointments").delete().neq("id", "00000000-0000-0000-0000-000000000000");
+  const { count: total, error: countError } = await window.supabaseClient
+    .from("appointments")
+    .select("id", { count: "exact", head: true });
+  if (countError) throw countError;
+
+  const { data, error } = await window.supabaseClient
+    .from("appointments")
+    .delete()
+    .neq("id", "00000000-0000-0000-0000-000000000000")
+    .select("id");
   if (error) throw error;
+
+  return { deleted: data ? data.length : 0, total: total || 0 };
 }
 
 /**
