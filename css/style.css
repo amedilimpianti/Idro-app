@@ -47,8 +47,12 @@
   --transition: 160ms cubic-bezier(.4,0,.2,1);
 }
 
-* { box-sizing: border-box; }
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 html, body { height: 100%; }
+
+/* Transizioni più fluide tra le pagine (supportate su Chrome/Android) */
+@view-transition { navigation: auto; }
+::view-transition-old(root), ::view-transition-new(root) { animation-duration: 180ms; animation-timing-function: cubic-bezier(.4,0,.2,1); }
 
 body {
   margin: 0;
@@ -80,6 +84,24 @@ select:focus-visible, textarea:focus-visible, [tabindex]:focus-visible {
   outline: 2px solid var(--copper);
   outline-offset: 2px;
 }
+
+/* Effetto "pressione" al tocco al posto dell'evidenziazione blu di default
+   del browser: una leggera contrazione, niente colore aggiunto. */
+.btn, .nav-link, .bottom-nav a, .appt-card, .auto-chip, .auto-mic-btn,
+.mobile-topbar-icon-btn, .mobile-topbar-avatar, .settings-accordion summary,
+.filter-toggle-btn, [data-scope], .bulk-row, .profile-photo-edit, .step-label {
+  -webkit-tap-highlight-color: transparent;
+  transition: transform 120ms cubic-bezier(.4,0,.2,1), filter 120ms ease, background 120ms ease, box-shadow 120ms ease, border-color 120ms ease;
+}
+.btn:active:not(:disabled), .nav-link:active, .bottom-nav a:active,
+.appt-card:active, .auto-chip:active, .mobile-topbar-icon-btn:active,
+.mobile-topbar-avatar:active, .settings-accordion summary:active,
+.filter-toggle-btn:active, [data-scope]:active {
+  transform: scale(0.96);
+  filter: brightness(0.97);
+}
+.bottom-nav a.fab:active { transform: scale(0.90); }
+.auto-mic-btn:active { transform: scale(0.94); }
 
 @media (prefers-reduced-motion: reduce) {
   * { animation-duration: 0.001ms !important; transition-duration: 0.001ms !important; }
@@ -459,9 +481,20 @@ body[data-page="auto"] { background: #0E1417; }
 @keyframes toast-in { from { opacity: 0; transform: translateY(8px);} to { opacity:1; transform: translateY(0);} }
 
 /* Modal */
-.modal-backdrop { position: fixed; inset: 0; background: rgba(23,36,43,0.45); display: none; align-items: center; justify-content: center; z-index: 900; padding: 20px; backdrop-filter: blur(2px); }
-.modal-backdrop.open { display: flex; }
-.modal { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 22px; width: 100%; max-width: 420px; box-shadow: var(--shadow-2); }
+.modal-backdrop {
+  position: fixed; inset: 0; background: rgba(23,36,43,0.45); display: flex; align-items: center; justify-content: center;
+  z-index: 900; padding: 20px; backdrop-filter: blur(2px);
+  opacity: 0; visibility: hidden; pointer-events: none;
+  transition: opacity 200ms ease, visibility 200ms;
+}
+.modal-backdrop.open { opacity: 1; visibility: visible; pointer-events: auto; }
+.modal {
+  background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 22px;
+  width: 100%; max-width: 420px; box-shadow: var(--shadow-2);
+  transform: scale(0.92) translateY(10px); opacity: 0;
+  transition: transform 220ms cubic-bezier(.2,.9,.3,1.2), opacity 200ms ease;
+}
+.modal-backdrop.open .modal { transform: scale(1) translateY(0); opacity: 1; }
 .modal h3 { margin-bottom: 8px; }
 .modal .modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 18px; }
 
