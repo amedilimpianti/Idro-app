@@ -4,7 +4,13 @@
    e in ufficio con massima leggibilità anche alla luce diretta del sole.
    ========================================================================== */
 
-@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+/* I font vengono caricati dall'<head> di ogni pagina con <link>, non più con
+   @import qui: @import obbliga il browser a scaricare prima tutto questo
+   file e solo dopo "scoprire" che servono i font, mettendo il download in
+   coda invece che in parallelo. Con 8 pesi di font diversi, questo faceva
+   sì che il testo continuasse a ricalcolare il layout ogni volta che un
+   peso arrivava — la causa del lag che migliora da solo dopo qualche
+   secondo dall'apertura di ogni pagina. */
 
 :root {
   --bg: #F4F6F5;
