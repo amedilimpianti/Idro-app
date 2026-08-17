@@ -44,7 +44,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     const appt = currentAppt;
     const end = addMinutes(appt.start_time.slice(0, 5), appt.duration_minutes);
 
-    document.getElementById("topbar-eyebrow").textContent = `Intervento · ${appt.appointment_date}`;
+    document.getElementById("topbar-eyebrow").textContent = `Intervento · ${formatDateIt(appt.appointment_date)}`;
     document.title = `${appt.client_name} — IDROPERATIVE`;
     document.getElementById("edit-link").href = `appuntamento.html?id=${appt.id}`;
 
@@ -84,14 +84,21 @@ document.addEventListener("DOMContentLoaded", async () => {
           <div class="detail-item"><div class="k">Creato da</div>
             <div class="v"><span class="creator-tag"><span class="avatar">${avatarInner(appt.profiles)}</span>${escapeHtml(appt.profiles?.full_name || "—")} · ${escapeHtml(appt.profiles?.role || "")}</span></div>
           </div>
+          <div class="detail-item"><div class="k">Assegnato a</div>
+            <div class="v">${
+              appt.assegnato
+                ? `<span class="creator-tag"><span class="avatar">${avatarInner(appt.assegnato)}</span>${escapeHtml(appt.assegnato.full_name || "—")}</span>`
+                : "—"
+            }</div>
+          </div>
         </div>
 
         ${appt.notes ? `<div class="pipe-rule"></div><div class="detail-item"><div class="k">Note</div><div class="v" style="font-weight:400;">${escapeHtml(appt.notes)}</div></div>` : ""}
       </div>
 
       <div class="card">
-        <div class="card-header"><h3>Follow-up intervento</h3></div>
-        <p>Aggiorna l'esito del lavoro svolto.</p>
+        <div class="card-header"><h3>Stato di avanzamento lavoro</h3></div>
+        <p>Aggiorna l'esito del lavoro svolto. Tocca di nuovo lo stato selezionato per annullarlo.</p>
         <div class="outcome-grid" id="outcome-grid">
           ${OUTCOME_OPTIONS.map(
             (o) => `
@@ -128,7 +135,13 @@ document.addEventListener("DOMContentLoaded", async () => {
     renderAttachGrid(document.getElementById("attach-grid-container"), currentAllegati, activeTab);
 
     document.querySelectorAll("#outcome-grid .outcome-option").forEach((el) => {
-      el.addEventListener("click", () => updateOutcome(el.getAttribute("data-outcome")));
+      el.addEventListener("click", () => {
+        const value = el.getAttribute("data-outcome");
+        // Se lo stato cliccato è già quello attivo, lo annulla riportando
+        // l'intervento a "Pianificato" invece di lasciarlo invariato.
+        const nextValue = currentAppt.status === value ? "pianificato" : value;
+        updateOutcome(nextValue);
+      });
     });
 
     document.querySelectorAll("#attach-tabs .attach-tab").forEach((btn) => {

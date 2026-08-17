@@ -25,7 +25,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     mode = next;
     errorBox.style.display = "none";
     if (mode === "signup") {
-      nameField.style.display = "block";
+      nameField.style.display = "grid";
       formTitle.textContent = "Crea il tuo account";
       formSub.textContent = "Registra un nuovo operatore o addetto alla segreteria.";
       submitBtn.textContent = "Crea account";
@@ -49,18 +49,20 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     const email = document.getElementById("email").value.trim();
     const password = document.getElementById("password").value;
-    const fullName = document.getElementById("fullname").value.trim();
+    const firstName = document.getElementById("firstname").value.trim();
+    const lastName = document.getElementById("lastname").value.trim();
+    const fullName = `${firstName} ${lastName}`.trim();
 
     submitBtn.disabled = true;
     submitBtn.innerHTML = '<span class="spinner"></span>';
 
     try {
       if (mode === "signup") {
-        if (!fullName) throw new Error("Inserisci nome e cognome.");
+        if (!firstName || !lastName) throw new Error("Inserisci nome e cognome.");
         const { data: signupData, error } = await window.supabaseClient.auth.signUp({
           email,
           password,
-          options: { data: { full_name: fullName } },
+          options: { data: { first_name: firstName, last_name: lastName, full_name: fullName } },
         });
         if (error) throw error;
 
@@ -69,6 +71,8 @@ document.addEventListener("DOMContentLoaded", async () => {
         if (signupData.user) {
           await window.supabaseClient.from("profiles").upsert({
             id: signupData.user.id,
+            first_name: firstName,
+            last_name: lastName,
             full_name: fullName,
             role: "operatore",
           });

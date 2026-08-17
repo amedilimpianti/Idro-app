@@ -140,7 +140,7 @@ document.addEventListener("DOMContentLoaded", async () => {
           <label class="bulk-row">
             <input type="checkbox" class="appt-checkbox" value="${a.id}" />
             <span class="bulk-client">${escapeHtml(a.client_name)} — ${escapeHtml(a.address)}</span>
-            <span class="bulk-date">${a.appointment_date} · ${formatTime(a.start_time)}</span>
+            <span class="bulk-date">${formatDateIt(a.appointment_date)} · ${formatTime(a.start_time)}</span>
           </label>`
           )
           .join("")}
@@ -218,6 +218,80 @@ document.addEventListener("DOMContentLoaded", async () => {
       showToast(`Errore: ${err.message}`, "error");
     }
   });
+
+  // --- Sezione Gestione utenti (solo admin) --------------------------------
+  const ROLE_PRESETS = ["Operaio", "Titolare"];
+  const usersSection = document.getElementById("users-section");
+  const usersListContainer = document.getElementById("users-list-container");
+
+  if (profile && profile.role === "admin") {
+    usersSection.style.display = "";
+    loadUsersList();
+  }
+
+  async function loadUsersList() {
+    usersListContainer.innerHTML = `<div class="page-loader"><span class="spinner"></span></div>`;
+    try {
+      const users = await fetchAllProfiles();
+      renderUsersList(users);
+    } catch (err) {
+      usersListContainer.innerHTML = `<p>Errore nel caricamento: ${escapeHtml(err.message)}</p>`;
+    }
+  }
+
+  function renderUsersList(users) {
+    if (!users.length) {
+      usersListContainer.innerHTML = `<p>Nessun utente registrato.</p>`;
+      return;
+    }
+    usersListContainer.innerHTML = users
+      .map((u) => {
+        const isPreset = ROLE_PRESETS.includes(u.role);
+        return `
+        <div class="user-role-row" data-user-id="${u.id}">
+          <div class="who">
+            <span class="avatar">${avatarInner(u)}</span>
+            <span class="name">${escapeHtml(u.full_name || "Utente")}</span>
+          </div>
+          <div class="user-role-controls">
+            <select class="role-select">
+              <option value="Operaio" ${u.role === "Operaio" ? "selected" : ""}>Operaio</option>
+              <option value="Titolare" ${u.role === "Titolare" ? "selected" : ""}>Titolare</option>
+              <option value="__altro__" ${!isPreset ? "selected" : ""}>Altro (libero)</option>
+            </select>
+            <input type="text" class="role-custom-input" placeholder="Ruolo personalizzato" value="${!isPreset ? escapeHtml(u.role || "") : ""}" style="${!isPreset ? "" : "display:none;"}" />
+            <button type="button" class="btn btn-sm btn-secondary role-save-btn">Salva</button>
+          </div>
+        </div>`;
+      })
+      .join("");
+
+    usersListContainer.querySelectorAll(".user-role-row").forEach((row) => {
+      const select = row.querySelector(".role-select");
+      const customInput = row.querySelector(".role-custom-input");
+      const saveBtn = row.querySelector(".role-save-btn");
+      const userId = row.getAttribute("data-user-id");
+
+      select.addEventListener("change", () => {
+        customInput.style.display = select.value === "__altro__" ? "" : "none";
+        if (select.value === "__altro__") customInput.focus();
+      });
+
+      saveBtn.addEventListener("click", async () => {
+        const role = select.value === "__altro__" ? customInput.value.trim() : select.value;
+        if (!role) {
+          showToast("Inserisci un ruolo valido.", "error");
+          return;
+        }
+        try {
+          await adminUpdateUserRole(userId, role);
+          showToast("Ruolo aggiornato.", "success");
+        } catch (err) {
+          showToast(`Errore: ${err.message}`, "error");
+        }
+      });
+    });
+  }
 
   document.getElementById("delete-all-btn").addEventListener("click", async () => {
     const ok = await confirmModalTyped({

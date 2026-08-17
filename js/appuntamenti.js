@@ -3,7 +3,18 @@
 // Usato da dashboard.html, appuntamento.html, dettaglio.html, impostazioni.html
 // ==========================================================================
 
-const SELECT_WITH_CREATOR = `*, profiles:created_by ( id, full_name, role, avatar_url )`;
+const SELECT_WITH_CREATOR = `*, profiles:created_by ( id, full_name, role, avatar_url ), assegnato:assigned_to ( id, full_name, role, avatar_url )`;
+
+/** Elenco degli utenti registrati selezionabili come responsabili di un
+ * intervento (solo id + nome e cognome: l'email non viene mai mostrata). */
+async function fetchAssignableUsers() {
+  const { data, error } = await window.supabaseClient
+    .from("profiles")
+    .select("id, full_name, role")
+    .order("full_name", { ascending: true });
+  if (error) throw error;
+  return data;
+}
 
 /** Recupera gli appuntamenti in un intervallo di date, ordinati per orario. */
 async function fetchAppointments({ dateFrom, dateTo, status, search } = {}) {

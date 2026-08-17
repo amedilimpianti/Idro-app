@@ -8,8 +8,8 @@
 // ⚠️ CONFIGURAZIONE OBBLIGATORIA
 // Sostituisci questi due valori con quelli del tuo progetto Supabase:
 // Project Settings → API → Project URL / anon public key.
-const SUPABASE_URL = "https://enriphesrcbfmfxwfori.supabase.co";
-const SUPABASE_ANON_KEY = "sb_publishable_qbA2YQBAtqkj6vssasgrjg_3r526XU1";
+const SUPABASE_URL = "https://TUO-PROGETTO.supabase.co";
+const SUPABASE_ANON_KEY = "TUA-CHIAVE-ANON-PUBBLICA";
 
 // Il client viene esposto su window per essere riutilizzato da tutti i moduli
 // senza dover ripetere l'inizializzazione in ogni pagina.
@@ -113,4 +113,28 @@ async function updateProfileName(fullName) {
 async function logout() {
   await window.supabaseClient.auth.signOut();
   window.location.href = "index.html";
+}
+
+/** Recupera tutti i profili registrati (solo admin, in base alle policy RLS),
+ * usato dalla sezione "Gestione utenti" nelle impostazioni. */
+async function fetchAllProfiles() {
+  const { data, error } = await window.supabaseClient
+    .from("profiles")
+    .select("id, full_name, role, avatar_url")
+    .order("full_name", { ascending: true });
+  if (error) throw error;
+  return data;
+}
+
+/** Aggiorna il ruolo di un utente registrato (solo admin, in base alle
+ * policy RLS: un admin può modificare il ruolo di chiunque). */
+async function adminUpdateUserRole(userId, role) {
+  const { data, error } = await window.supabaseClient
+    .from("profiles")
+    .update({ role })
+    .eq("id", userId)
+    .select()
+    .single();
+  if (error) throw error;
+  return data;
 }

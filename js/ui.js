@@ -115,10 +115,29 @@ function confirmModalTyped({ title, message, confirmWord, confirmLabel = "Confer
   });
 }
 
-/** Formatta una data ISO (YYYY-MM-DD) in formato leggibile italiano. */
+/** Formatta una data ISO (YYYY-MM-DD) nel formato richiesto gg/mm/aaaa. */
 function formatDateIt(isoDate) {
+  if (!isoDate) return "--/--/----";
+  const [y, m, d] = isoDate.split("-");
+  if (!y || !m || !d) return isoDate;
+  return `${d}/${m}/${y}`;
+}
+
+/** Come formatDateIt, ma antepone il giorno della settimana esteso (usato dove
+ * serve più contesto, es. intestazioni). Il formato numerico resta gg/mm/aaaa. */
+function formatDateItLong(isoDate) {
+  if (!isoDate) return "--/--/----";
   const d = new Date(isoDate + "T00:00:00");
-  return d.toLocaleDateString("it-IT", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
+  const weekday = d.toLocaleDateString("it-IT", { weekday: "long" });
+  return `${weekday.charAt(0).toUpperCase()}${weekday.slice(1)} ${formatDateIt(isoDate)}`;
+}
+
+/** Converte una data "gg/mm/aaaa" nel formato ISO "aaaa-mm-gg" usato dal DB. */
+function parseDateIt(itDate) {
+  if (!itDate) return "";
+  const [d, m, y] = itDate.split("/");
+  if (!d || !m || !y) return "";
+  return `${y}-${m.padStart(2, "0")}-${d.padStart(2, "0")}`;
 }
 
 /** Formatta un orario "HH:MM:SS" o "HH:MM" in "HH:MM". */
@@ -199,6 +218,62 @@ document.addEventListener("DOMContentLoaded", () => {
       if (ok) logout();
     });
   });
+});
+
+// ==========================================================================
+// Transizioni tra pagine. L'app è multi-pagina (ogni link ricarica il
+// documento): la sola @view-transition CSS non basta perché è supportata
+// solo da Chrome/Android, quindi su molti dispositivi il cambio pagina
+// avviene "a scatto". Questo blocco applica una dissolvenza in ingresso a
+// ogni caricamento e una dissolvenza in uscita prima di seguire i link
+// interni, così l'animazione si vede su qualsiasi browser.
+// ==========================================================================
+function pageFadeIn() {
+  requestAnimationFrame(() => {
+    document.body.classList.add("page-visible");
+  });
+}
+
+function isInternalNavigableLink(link) {
+  if (!link || !link.href) return false;
+  if (link.target && link.target !== "" && link.target !== "_self") return false;
+  if (link.hasAttribute("download")) return false;
+  if (link.getAttribute("href").startsWith("#")) return false;
+  let url;
+  try {
+    url = new URL(link.href, window.location.href);
+  } catch (err) {
+    return false;
+  }
+  if (url.origin !== window.location.origin) return false;
+  if (!/\.html($|\?)/.test(url.pathname) && url.pathname !== "/") return false;
+  return true;
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  pageFadeIn();
+
+  document.addEventListener("click", (e) => {
+    const link = e.target.closest("a[href]");
+    if (!link || !isInternalNavigableLink(link)) return;
+    // I link di logout gestiscono già la propria conferma/navigazione altrove.
+    if (link.hasAttribute("data-logout-btn")) return;
+
+    e.preventDefault();
+    const destination = link.href;
+    document.body.classList.add("page-leaving");
+    document.body.classList.remove("page-visible");
+    setTimeout(() => {
+      window.location.href = destination;
+    }, 140);
+  });
+});
+
+// Se la pagina torna visibile dalla cache "bfcache" del browser (tasto
+// indietro), assicura che la dissolvenza in ingresso venga riapplicata
+// invece di restare nascosta.
+window.addEventListener("pageshow", (e) => {
+  if (e.persisted) pageFadeIn();
 });
 
 // Il Service Worker è stato rimosso (causava problemi di cache durante lo

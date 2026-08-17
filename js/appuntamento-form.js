@@ -26,6 +26,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   const dateInput = document.getElementById("appointment_date");
   const timeInput = document.getElementById("start_time");
   const durationInput = document.getElementById("duration_minutes");
+  const assignedSelect = document.getElementById("assigned_to");
   const staffCountEl = document.getElementById("staff_count");
   const dayPanelBody = document.getElementById("day-panel-body");
   const dayPanelCount = document.getElementById("day-panel-count");
@@ -34,6 +35,48 @@ document.addEventListener("DOMContentLoaded", async () => {
   const deleteBtn = document.getElementById("delete-btn");
 
   let staffCount = 1;
+
+  // --------------------------------------------------------------------
+  // Data di default (solo per un nuovo intervento), prima di collegare i
+  // modali personalizzati così il trigger mostra subito il valore corretto.
+  // --------------------------------------------------------------------
+  if (!isEdit) dateInput.value = isoToday();
+
+  // --------------------------------------------------------------------
+  // Modali personalizzati per data, orario e durata prevista.
+  // --------------------------------------------------------------------
+  const datePickerCtl = attachDatePickerField({
+    trigger: document.getElementById("appointment_date_trigger"),
+    display: document.getElementById("appointment_date_display"),
+    hiddenInput: dateInput,
+  });
+  const timePickerCtl = attachTimePickerField({
+    trigger: document.getElementById("start_time_trigger"),
+    display: document.getElementById("start_time_display"),
+    hiddenInput: timeInput,
+  });
+  const durationCtl = attachDurationChips({
+    container: document.getElementById("duration-chips"),
+    hiddenInput: durationInput,
+    customBtn: document.getElementById("duration-chip-custom"),
+  });
+
+  // --------------------------------------------------------------------
+  // Utenti registrati assegnabili all'intervento (solo nome e cognome,
+  // mai l'email).
+  // --------------------------------------------------------------------
+  let pendingAssignedValue = null;
+  (async () => {
+    try {
+      const users = await fetchAssignableUsers();
+      assignedSelect.innerHTML =
+        `<option value="">Da assegnare</option>` +
+        users.map((u) => `<option value="${u.id}">${escapeHtml(u.full_name || "Utente")}</option>`).join("");
+      if (pendingAssignedValue) assignedSelect.value = pendingAssignedValue;
+    } catch (err) {
+      /* elenco utenti non disponibile: il campo resta con "Da assegnare" */
+    }
+  })();
 
   // --------------------------------------------------------------------
   // Stepper mobile: 3 passaggi (Cliente → Pianificazione → Note). Su
@@ -79,6 +122,21 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
       });
     });
+    // I campi data/ora/durata sono input nascosti pilotati dai modali
+    // personalizzati: l'attributo "required" non li copre (i campi hidden
+    // sono esclusi dalla validazione nativa), quindi vanno controllati qui.
+    if (currentStep === 2) {
+      if (!dateInput.value) {
+        showToast("Seleziona la data dell'intervento.", "error");
+        valid = false;
+      } else if (!timeInput.value) {
+        showToast("Seleziona l'orario di inizio.", "error");
+        valid = false;
+      } else if (!durationInput.value) {
+        showToast("Seleziona la durata prevista.", "error");
+        valid = false;
+      }
+    }
     return valid;
   }
 
@@ -99,8 +157,6 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
   window.addEventListener("resize", debounce(updateStepUI, 200));
   updateStepUI();
-
-  if (!isEdit) dateInput.value = new Date().toISOString().slice(0, 10);
 
   document.getElementById("staff-minus").addEventListener("click", () => setStaffCount(staffCount - 1));
   document.getElementById("staff-plus").addEventListener("click", () => setStaffCount(staffCount + 1));
@@ -175,6 +231,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       duration_minutes: durationInput.value,
       staff_required: staffCount,
       notes: document.getElementById("notes").value,
+      assigned_to: assignedSelect.value,
     };
   }
 
@@ -201,6 +258,10 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (draft.appointment_date) dateInput.value = draft.appointment_date;
     if (draft.start_time) timeInput.value = draft.start_time;
     if (draft.duration_minutes) durationInput.value = draft.duration_minutes;
+    datePickerCtl.refreshDisplay();
+    timePickerCtl.refreshDisplay();
+    durationCtl.renderChips();
+    if (draft.assigned_to) assignedSelect.value = draft.assigned_to;
     setStaffCount(Number(draft.staff_required) || 1);
     document.getElementById("notes").value = draft.notes || "";
   }
@@ -247,8 +308,13 @@ document.addEventListener("DOMContentLoaded", async () => {
       dateInput.value = appt.appointment_date;
       timeInput.value = appt.start_time.slice(0, 5);
       durationInput.value = appt.duration_minutes;
+      datePickerCtl.refreshDisplay();
+      timePickerCtl.refreshDisplay();
+      durationCtl.renderChips();
       document.getElementById("status").value = appt.status;
       document.getElementById("notes").value = appt.notes || "";
+      pendingAssignedValue = appt.assigned_to || "";
+      assignedSelect.value = pendingAssignedValue;
       setStaffCount(appt.staff_required);
       deleteBtn.style.display = "inline-flex";
     } catch (err) {
@@ -262,6 +328,40 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
+
+    // Validazione finale dei campi data/ora/durata (input nascosti, non
+    // coperti dalla validazione nativa del form).
+    if (!dateInput.value || !timeInput.value || !durationInput.value) {
+      showToast("Completa data, orario e durata prevista dell'intervento.", "error");
+      return;
+    }
+
+    // Controllo sovrapposizioni: se l'orario scelto va in conflitto con
+    // altri interventi già fissati per la stessa data, chiedi conferma
+    // esplicita prima di procedere.
+    try {
+      const dayAppointments = await fetchAppointmentsForDate(dateInput.value, { excludeId: editId });
+      const conflicts = findConflicts(dayAppointments, {
+        startTime: timeInput.value,
+        durationMinutes: Number(durationInput.value),
+      });
+      if (conflicts.length) {
+        const message =
+          conflicts.length === 1
+            ? `Questo orario si sovrappone all'intervento da ${escapeHtml(conflicts[0].client_name)}. Vuoi procedere comunque?`
+            : `Questo orario si sovrappone a ${conflicts.length} interventi già fissati. Vuoi procedere comunque?`;
+        const proceed = await confirmModal({
+          title: "Sovrapposizione rilevata",
+          message,
+          confirmLabel: "Procedi comunque",
+          danger: true,
+        });
+        if (!proceed) return;
+      }
+    } catch (err) {
+      /* se il controllo sovrapposizioni fallisce, non blocca il salvataggio */
+    }
+
     submitBtn.disabled = true;
     submitBtn.innerHTML = '<span class="spinner"></span>';
 
@@ -274,6 +374,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       duration_minutes: Number(durationInput.value),
       staff_required: staffCount,
       notes: document.getElementById("notes").value.trim() || null,
+      assigned_to: assignedSelect.value || null,
     };
     if (isEdit) payload.status = document.getElementById("status").value;
 

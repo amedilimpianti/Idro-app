@@ -106,7 +106,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     listEl.innerHTML = data
       .map((a) => {
-        const dateLabel = scope !== "day" ? `<span class="appt-meta-item mono">${a.appointment_date}</span>` : "";
+        const dateLabel = scope !== "day" ? `<span class="appt-meta-item mono">${formatDateIt(a.appointment_date)}</span>` : "";
         return `
         <div class="appt-card" data-id="${a.id}">
           <div class="appt-time">
