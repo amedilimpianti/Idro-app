@@ -25,6 +25,11 @@ function showToast(message, type = "info") {
   toast.textContent = message;
   root.appendChild(toast);
   setTimeout(() => toast.remove(), 3600);
+
+  if (typeof Feedback !== "undefined") {
+    if (type === "success") Feedback.success();
+    else if (type === "error") Feedback.error();
+  }
 }
 
 /**
@@ -33,7 +38,7 @@ function showToast(message, type = "info") {
 function confirmModal({ title, message, confirmLabel = "Conferma", danger = false }) {
   return new Promise((resolve) => {
     const backdrop = document.createElement("div");
-    backdrop.className = "modal-backdrop open";
+    backdrop.className = "modal-backdrop";
     backdrop.innerHTML = `
       <div class="modal" role="dialog" aria-modal="true">
         <h3>${title}</h3>
@@ -45,9 +50,12 @@ function confirmModal({ title, message, confirmLabel = "Conferma", danger = fals
       </div>
     `;
     document.body.appendChild(backdrop);
+    requestAnimationFrame(() => backdrop.classList.add("open"));
+    if (typeof Feedback !== "undefined" && danger) Feedback.warning();
 
     const close = (result) => {
-      backdrop.remove();
+      backdrop.classList.remove("open");
+      setTimeout(() => backdrop.remove(), 200);
       resolve(result);
     };
     backdrop.querySelector('[data-action="cancel"]').addEventListener("click", () => close(false));
@@ -66,7 +74,7 @@ function confirmModal({ title, message, confirmLabel = "Conferma", danger = fals
 function confirmModalTyped({ title, message, confirmWord, confirmLabel = "Conferma" }) {
   return new Promise((resolve) => {
     const backdrop = document.createElement("div");
-    backdrop.className = "modal-backdrop open";
+    backdrop.className = "modal-backdrop";
     backdrop.innerHTML = `
       <div class="modal" role="dialog" aria-modal="true">
         <h3>${title}</h3>
@@ -82,6 +90,8 @@ function confirmModalTyped({ title, message, confirmWord, confirmLabel = "Confer
       </div>
     `;
     document.body.appendChild(backdrop);
+    requestAnimationFrame(() => backdrop.classList.add("open"));
+    if (typeof Feedback !== "undefined") Feedback.warning();
 
     const input = backdrop.querySelector("#typed-confirm-input");
     const confirmBtn = backdrop.querySelector('[data-action="confirm"]');
@@ -90,7 +100,8 @@ function confirmModalTyped({ title, message, confirmWord, confirmLabel = "Confer
     });
 
     const close = (result) => {
-      backdrop.remove();
+      backdrop.classList.remove("open");
+      setTimeout(() => backdrop.remove(), 200);
       resolve(result);
     };
     backdrop.querySelector('[data-action="cancel"]').addEventListener("click", () => close(false));
@@ -100,7 +111,7 @@ function confirmModalTyped({ title, message, confirmWord, confirmLabel = "Confer
     backdrop.addEventListener("click", (e) => {
       if (e.target === backdrop) close(false);
     });
-    setTimeout(() => input.focus(), 50);
+    setTimeout(() => input.focus(), 260);
   });
 }
 

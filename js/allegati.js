@@ -80,7 +80,7 @@ function renderAttachGrid(container, allegati, categoria, { readOnly = false } =
 function openCameraModal() {
   return new Promise((resolve) => {
     const backdrop = document.createElement("div");
-    backdrop.className = "modal-backdrop open";
+    backdrop.className = "modal-backdrop";
     backdrop.innerHTML = `
       <div class="modal camera-modal" role="dialog" aria-modal="true">
         <h3>Scatta foto</h3>
@@ -96,6 +96,7 @@ function openCameraModal() {
       </div>
     `;
     document.body.appendChild(backdrop);
+    requestAnimationFrame(() => backdrop.classList.add("open"));
 
     const video = backdrop.querySelector("video");
     const canvas = backdrop.querySelector("canvas");
@@ -117,7 +118,8 @@ function openCameraModal() {
 
     function close(result) {
       stopStream();
-      backdrop.remove();
+      backdrop.classList.remove("open");
+      setTimeout(() => backdrop.remove(), 200);
       resolve(result);
     }
 
