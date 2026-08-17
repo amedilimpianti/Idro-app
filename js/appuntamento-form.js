@@ -63,16 +63,23 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   // --------------------------------------------------------------------
   // Utenti registrati assegnabili all'intervento (solo nome e cognome,
-  // mai l'email).
+  // mai l'email). L'elenco è mostrato tramite un modale disegnato ad hoc
+  // (vedi datetime-picker.js) invece dell'elenco nativo del sistema.
   // --------------------------------------------------------------------
+  const assignedPickerCtl = attachAssigneePickerField({
+    trigger: document.getElementById("assigned_to_trigger"),
+    display: document.getElementById("assigned_to_display"),
+    hiddenInput: assignedSelect,
+  });
   let pendingAssignedValue = null;
   (async () => {
     try {
       const users = await fetchAssignableUsers();
-      assignedSelect.innerHTML =
-        `<option value="">Da assegnare</option>` +
-        users.map((u) => `<option value="${u.id}">${escapeHtml(u.full_name || "Utente")}</option>`).join("");
-      if (pendingAssignedValue) assignedSelect.value = pendingAssignedValue;
+      assignedPickerCtl.setUsers(users);
+      if (pendingAssignedValue) {
+        assignedSelect.value = pendingAssignedValue;
+        assignedPickerCtl.refreshDisplay();
+      }
     } catch (err) {
       /* elenco utenti non disponibile: il campo resta con "Da assegnare" */
     }
@@ -261,7 +268,10 @@ document.addEventListener("DOMContentLoaded", async () => {
     datePickerCtl.refreshDisplay();
     timePickerCtl.refreshDisplay();
     durationCtl.renderChips();
-    if (draft.assigned_to) assignedSelect.value = draft.assigned_to;
+    if (draft.assigned_to) {
+      assignedSelect.value = draft.assigned_to;
+      assignedPickerCtl.refreshDisplay();
+    }
     setStaffCount(Number(draft.staff_required) || 1);
     document.getElementById("notes").value = draft.notes || "";
   }
@@ -315,6 +325,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       document.getElementById("notes").value = appt.notes || "";
       pendingAssignedValue = appt.assigned_to || "";
       assignedSelect.value = pendingAssignedValue;
+      assignedPickerCtl.refreshDisplay();
       setStaffCount(appt.staff_required);
       deleteBtn.style.display = "inline-flex";
     } catch (err) {

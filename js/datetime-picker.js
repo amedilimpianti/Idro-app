@@ -329,3 +329,87 @@ function attachTimePickerField({ trigger, display, hiddenInput, onChange }) {
   refreshDisplay();
   return { refreshDisplay };
 }
+
+/** Apre il modale "Assegna a" con l'elenco degli incaricati disegnato ad hoc
+ * (al posto dell'elenco nativo di Android/iOS mostrato da una <select>).
+ * Restituisce una Promise<string|undefined>: l'id scelto ("" per "Da
+ * assegnare"), oppure undefined se il modale è stato chiuso senza scegliere. */
+function openAssigneePickerModal(users, currentId) {
+  return new Promise((resolve) => {
+    const options = [{ id: "", full_name: "Da assegnare" }, ...(users || [])];
+
+    const backdrop = document.createElement("div");
+    backdrop.className = "modal-backdrop";
+    backdrop.innerHTML = `
+      <div class="modal picker-modal" role="dialog" aria-modal="true" aria-label="Assegna a">
+        <h3>Assegna a</h3>
+        <div class="assignee-picker-list">
+          ${options
+            .map((u) => {
+              const selected = (u.id || "") === (currentId || "");
+              const initials = u.id ? getInitials(u.full_name) : "—";
+              return `
+              <button type="button" class="assignee-picker-item ${selected ? "is-selected" : ""}" data-id="${u.id}">
+                <span class="avatar">${initials}</span>
+                <span class="assignee-picker-name">${escapeHtml(u.full_name || "Da assegnare")}</span>
+                <svg class="assignee-picker-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6 9 17l-5-5"/></svg>
+              </button>`;
+            })
+            .join("")}
+        </div>
+        <div class="modal-actions">
+          <button class="btn btn-secondary" data-action="cancel">Chiudi</button>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(backdrop);
+    requestAnimationFrame(() => backdrop.classList.add("open"));
+
+    const close = (result) => {
+      backdrop.classList.remove("open");
+      setTimeout(() => backdrop.remove(), 200);
+      resolve(result);
+    };
+    backdrop.querySelectorAll(".assignee-picker-item").forEach((btn) => {
+      btn.addEventListener("click", () => close(btn.getAttribute("data-id")));
+    });
+    backdrop.querySelector('[data-action="cancel"]').addEventListener("click", () => close(undefined));
+    backdrop.addEventListener("click", (e) => {
+      if (e.target === backdrop) close(undefined);
+    });
+  });
+}
+
+/**
+ * Collega un pulsante "trigger" (che mostra il nome dell'incaricato) al
+ * modale "Assegna a" e a un input nascosto che conserva l'id scelto.
+ * L'elenco utenti va passato via setUsers() quando disponibile (viene
+ * caricato in modo asincrono da Supabase).
+ */
+function attachAssigneePickerField({ trigger, display, hiddenInput }) {
+  let users = [];
+
+  function refreshDisplay() {
+    const current = users.find((u) => u.id === hiddenInput.value);
+    display.textContent = current ? current.full_name || "Utente" : "Da assegnare";
+    display.classList.toggle("placeholder", !hiddenInput.value);
+  }
+
+  trigger.addEventListener("click", async () => {
+    const result = await openAssigneePickerModal(users, hiddenInput.value);
+    if (result !== undefined) {
+      hiddenInput.value = result;
+      refreshDisplay();
+      hiddenInput.dispatchEvent(new Event("change", { bubbles: true }));
+    }
+  });
+
+  refreshDisplay();
+  return {
+    refreshDisplay,
+    setUsers(list) {
+      users = list || [];
+      refreshDisplay();
+    },
+  };
+}
