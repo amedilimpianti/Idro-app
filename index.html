@@ -48,9 +48,15 @@
       <div class="auth-error" id="auth-error"></div>
 
       <form id="auth-form" novalidate>
-        <div class="field" id="field-fullname" style="display:none;">
-          <label for="fullname">Nome e cognome</label>
-          <input type="text" id="fullname" autocomplete="name" placeholder="Mario Rossi" />
+        <div class="field-row" id="field-fullname" style="display:none;">
+          <div class="field" style="margin-bottom:0;">
+            <label for="firstname">Nome</label>
+            <input type="text" id="firstname" autocomplete="given-name" placeholder="Mario" />
+          </div>
+          <div class="field" style="margin-bottom:0;">
+            <label for="lastname">Cognome</label>
+            <input type="text" id="lastname" autocomplete="family-name" placeholder="Rossi" />
+          </div>
         </div>
         <div class="field">
           <label for="email">Email</label>

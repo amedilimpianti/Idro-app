@@ -16,14 +16,16 @@ create extension if not exists "pgcrypto";
 -- ----------------------------------------------------------------------------
 create table if not exists public.profiles (
   id uuid primary key references auth.users (id) on delete cascade,
+  first_name text,
+  last_name text,
   full_name text not null default 'Operatore',
-  role text not null default 'operatore' check (role in ('operatore', 'segreteria', 'admin')),
+  role text not null default 'operatore' check (length(trim(role)) > 0),
   phone text,
   avatar_url text,
   created_at timestamptz not null default now()
 );
 
-comment on table public.profiles is 'Profilo esteso di ogni utente: nome, ruolo aziendale.';
+comment on table public.profiles is 'Profilo esteso di ogni utente: nome, cognome, ruolo aziendale (testo libero, es. Operaio/Titolare/admin).';
 
 create or replace function public.handle_new_user()
 returns trigger
@@ -31,8 +33,17 @@ language plpgsql
 security definer set search_path = public
 as $$
 begin
-  insert into public.profiles (id, full_name)
-  values (new.id, coalesce(new.raw_user_meta_data ->> 'full_name', new.email))
+  insert into public.profiles (id, first_name, last_name, full_name)
+  values (
+    new.id,
+    new.raw_user_meta_data ->> 'first_name',
+    new.raw_user_meta_data ->> 'last_name',
+    coalesce(
+      nullif(trim(both ' ' from concat(new.raw_user_meta_data ->> 'first_name', ' ', new.raw_user_meta_data ->> 'last_name')), ''),
+      new.raw_user_meta_data ->> 'full_name',
+      new.email
+    )
+  )
   on conflict (id) do nothing;
   return new;
 end;
@@ -49,6 +60,7 @@ create trigger on_auth_user_created
 create table if not exists public.appointments (
   id uuid primary key default gen_random_uuid(),
   created_by uuid references public.profiles (id) on delete set null,
+  assigned_to uuid references public.profiles (id) on delete set null,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
 
@@ -80,6 +92,7 @@ comment on column public.appointments.allegati is 'Foto prima/dopo e documenti (
 
 create index if not exists idx_appointments_date on public.appointments (appointment_date);
 create index if not exists idx_appointments_created_by on public.appointments (created_by);
+create index if not exists idx_appointments_assigned_to on public.appointments (assigned_to);
 
 create or replace function public.set_updated_at()
 returns trigger
@@ -124,6 +137,13 @@ create policy "profiles: aggiornamento proprio profilo"
   to authenticated
   using (auth.uid() = id)
   with check (auth.uid() = id);
+
+drop policy if exists "profiles: admin aggiorna ruolo di chiunque" on public.profiles;
+create policy "profiles: admin aggiorna ruolo di chiunque"
+  on public.profiles for update
+  to authenticated
+  using (exists (select 1 from public.profiles p where p.id = auth.uid() and p.role = 'admin'))
+  with check (exists (select 1 from public.profiles p where p.id = auth.uid() and p.role = 'admin'));
 
 -- APPOINTMENTS ----------------------------------------------------------------
 drop policy if exists "appuntamenti: lettura azienda" on public.appointments;

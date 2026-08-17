@@ -118,20 +118,37 @@
             <div class="datetime-block">
               <div class="field-row">
                 <div class="field">
-                  <label for="appointment_date">Data *</label>
-                  <input type="date" id="appointment_date" required />
+                  <label for="appointment_date_trigger">Data *</label>
+                  <button type="button" class="field-picker-trigger" id="appointment_date_trigger">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+                    <span id="appointment_date_display" class="placeholder">Seleziona data</span>
+                  </button>
+                  <input type="hidden" id="appointment_date" />
                 </div>
                 <div class="field">
-                  <label for="start_time">Ora inizio *</label>
-                  <input type="time" id="start_time" required />
+                  <label for="start_time_trigger">Ora inizio *</label>
+                  <button type="button" class="field-picker-trigger" id="start_time_trigger">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
+                    <span id="start_time_display" class="placeholder">Seleziona ora</span>
+                  </button>
+                  <input type="hidden" id="start_time" />
                 </div>
               </div>
             </div>
-            <div class="field-row">
-              <div class="field">
-                <label for="duration_minutes">Durata prevista (minuti) *</label>
-                <input type="number" id="duration_minutes" min="15" step="15" value="60" required />
+            <div class="field">
+              <label>Durata prevista *</label>
+              <div class="duration-chips" id="duration-chips">
+                <button type="button" class="duration-chip" data-minutes="30">30 min</button>
+                <button type="button" class="duration-chip" data-minutes="60">1 ora</button>
+                <button type="button" class="duration-chip" data-minutes="90">1h 30</button>
+                <button type="button" class="duration-chip" data-minutes="120">2 ore</button>
+                <button type="button" class="duration-chip" data-minutes="180">3 ore</button>
+                <button type="button" class="duration-chip" data-minutes="240">4 ore</button>
+                <button type="button" class="duration-chip" id="duration-chip-custom">Altro</button>
               </div>
+              <input type="hidden" id="duration_minutes" value="60" />
+            </div>
+            <div class="field-row">
               <div class="field" id="status-field">
                 <label for="status">Stato / esito</label>
                 <select id="status">
@@ -141,6 +158,12 @@
                   <option value="da_ultimare">Da ultimare</option>
                   <option value="rimandato">Rimandato</option>
                   <option value="annullato">Annullato</option>
+                </select>
+              </div>
+              <div class="field">
+                <label for="assigned_to">Assegnato a</label>
+                <select id="assigned_to">
+                  <option value="">Da assegnare</option>
                 </select>
               </div>
             </div>
@@ -212,6 +235,7 @@
 <script src="js/ui.js"></script>
 <script src="js/feedback.js"></script>
 <script src="js/appuntamenti.js"></script>
+<script src="js/datetime-picker.js"></script>
 <script src="js/appuntamento-form.js"></script>
 </body>
 </html>
